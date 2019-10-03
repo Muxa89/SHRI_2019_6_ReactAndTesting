@@ -11,6 +11,7 @@ import './App.scss';
 import reducer from './store/reducers/root.js';
 
 const store = createStore(reducer);
+console.log(store.getState());
 store.subscribe(() => console.log(store.getState()));
 
 class App extends Component {
