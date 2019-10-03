@@ -5,12 +5,12 @@ import '../Selector/Selector.sass';
 
 export default function ItemAndBranchContainer() {
   return (
-    <div class='ItemAndBranchContainer'>
-      <div class='SelectedItem ItemAndBranchContainer-SelectedItem'>
+    <div className='ItemAndBranchContainer'>
+      <div className='SelectedItem ItemAndBranchContainer-SelectedItem'>
         arcadia
       </div>
-      <div class='BranchSelector Selector'>
-        trunk <div class='Selector-ArrowDown'> </div>
+      <div className='BranchSelector Selector'>
+        trunk <div className='Selector-ArrowDown'> </div>
       </div>
     </div>
   );

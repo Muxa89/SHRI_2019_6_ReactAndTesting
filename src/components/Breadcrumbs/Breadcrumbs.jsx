@@ -4,8 +4,8 @@ import './Breadcrumbs.sass';
 
 export default function Breadcrumbs() {
   return (
-    <div class='Breadcrumbs'>
-      <div class='Breadcrumbs-Item'>arcadia</div>
+    <div className='Breadcrumbs'>
+      <div className='Breadcrumbs-Item'>arcadia</div>
     </div>
   );
 }
