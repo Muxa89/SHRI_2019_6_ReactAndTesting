@@ -12,12 +12,13 @@ import { loadFiles } from '../../store/actions/filesActions';
 const IT = cn('InfoTable');
 
 export default function InfoTable() {
-  const { repositoryId } = useParams();
+  const params = useParams();
+  const { repositoryId, hash, path } = params;
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(loadFiles(repositoryId));
-  }, [repositoryId]);
+    dispatch(loadFiles(repositoryId, hash, path));
+  }, [repositoryId, hash, path]);
 
   const infoTableItems = useSelector(state => state.infoTableItems);
 

@@ -16,7 +16,7 @@ store.subscribe(() => console.log(store.getState()));
 ReactDOM.render(
   <Provider store={store}>
     <Router>
-      <Route path='/:repositoryId?' component={App} />
+      <Route path={['/:repositoryId?/tree/:hash/:path([a-zA-Z0-9_\\-/]+)', '/:repositoryId?/tree/:hash?', '/:repositoryId?']} component={App} />
     </Router>
   </Provider>,
   document.getElementById('root')
