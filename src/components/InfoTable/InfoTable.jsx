@@ -18,9 +18,9 @@ function InfoTable({ infoTableItems }) {
         <div className={IT('Commiter')}>Commiter</div>
         <div className={IT('Date')}>Updated</div>
       </div>
-      {infoTableItems.map((item, i) => {
+      {infoTableItems.map(item => {
         return (
-          <div className={IT('Row')} key={i}>
+          <div className={IT('Row')} key={`${item.name}:${item.commit}`}>
             <div className={IT('Name')}>
               <div className={IT('EntryIcon', { type: item.type })}></div>
               <div className={IT('Text')}>{item.name}</div>

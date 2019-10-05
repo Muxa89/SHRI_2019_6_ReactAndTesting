@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@bem-react/classname": "^1.5.6",
+    "axios": "^0.19.0",
     "file-loader": "^4.2.0",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",

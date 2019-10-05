@@ -46,7 +46,11 @@
       &:first-child
         top: 1px solid #E5E5E5
 
+        background:
       background: 
+        background:
+      background: 
+        background:
         image: url(./ArrowRight.svg)
         repeat: no-repeat
         position-x: calc(100% - 3px)
@@ -69,9 +73,16 @@
     &_type_file
       background-image: url(./FileIcon.svg)
 
+  $name-width: 180px
+  $commit-width: 180px
+  $commiter-width: 160px
+  $date-width: 160px
+
   &-Name
+    flex-shrink: 0
+
     @if $screen-width == 1440px
-      width: 242px
+      width: $name-width
       margin-left: 8px
 
       &>.InfoTable-Text
@@ -81,23 +92,31 @@
       order: 0
 
   &-Commit
+    flex-shrink: 0
+
     @if $screen-width == 1440px
-      width: 258px
+      width: $commit-width
     @else if $screen-width == 360px
       margin-top: 8px
       order: 2
 
   &-Message
     @if $screen-width == 1440px
+      text-overflow: ellipsis
+      overflow: hidden
+      white-space: nowrap
       flex-grow: 1
+      max-width: calc(100% - #{$name-width} - #{$commit-width} - #{$commiter-width} - #{$date-width})
+      margin-right: 15px
     @else if $screen-width == 360px
       margin-top: 10px
       width: 100%
       order: 1
 
   &-Commiter
+    flex-shrink: 0
     @if $screen-width == 1440px
-      width: 233px
+      width: $commiter-width
     @else if $screen-width == 360px
       margin:
         top: 8px
@@ -105,10 +124,11 @@
       order: 3
 
   &-Date
+    flex-shrink: 0
     @if $screen-width == 1440px
       margin-right: 8px
       text-align: right
-      width: 150px
+      width: $date-width
     @else if $screen-width == 360px
       margin:
         top: 8px

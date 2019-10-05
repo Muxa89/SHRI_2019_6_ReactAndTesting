@@ -11,9 +11,13 @@ import './App.scss';
 
 import reducer from '../store/reducers/root.js';
 
+import { loadFiles } from '../store/actions/filesActions.js';
+
 const store = createStore(reducer, applyMiddleware(thunk));
 console.log(store.getState());
 store.subscribe(() => console.log(store.getState()));
+
+store.dispatch(loadFiles());
 
 class App extends Component {
   render() {

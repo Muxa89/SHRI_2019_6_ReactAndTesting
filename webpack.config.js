@@ -34,7 +34,7 @@ module.exports = {
   },
   devServer: {
     contentBase: path.join(__dirname, 'public'),
-    port: 3000
+    port: 8000
   },
   devtool: 'inline-source-map',
   plugins: [new webpack.HotModuleReplacementPlugin()]
