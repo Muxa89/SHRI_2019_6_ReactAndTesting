@@ -1,5 +1,23 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./components/App";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
 
-ReactDOM.render(<App />, document.getElementById("root"));
+import App from './components/App';
+
+import reducer from './store/reducers/root.js';
+
+const store = createStore(reducer, applyMiddleware(thunk));
+console.log(store.getState());
+store.subscribe(() => console.log(store.getState()));
+
+ReactDOM.render(
+  <Provider store={store}>
+    <Router>
+      <Route path='/:repositoryId?' component={App} />
+    </Router>
+  </Provider>,
+  document.getElementById('root')
+);

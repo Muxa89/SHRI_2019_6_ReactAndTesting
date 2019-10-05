@@ -1,14 +1,26 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { NavLink, useParams } from 'react-router-dom';
 import { cn } from '@bem-react/classname';
 
 import './InfoTable.sass';
 import '../Link/Link.sass';
 import '../Commiter/Commiter.sass';
 
+import { loadFiles } from '../../store/actions/filesActions';
+
 const IT = cn('InfoTable');
 
-function InfoTable({ infoTableItems }) {
+export default function InfoTable() {
+  const { repositoryId } = useParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadFiles(repositoryId));
+  }, [repositoryId]);
+
+  const infoTableItems = useSelector(state => state.infoTableItems);
+
   return (
     <div className={IT()}>
       <div className={IT('Header')}>
@@ -21,10 +33,12 @@ function InfoTable({ infoTableItems }) {
       {infoTableItems.map(item => {
         return (
           <div className={IT('Row')} key={`${item.name}:${item.commit}`}>
-            <div className={IT('Name')}>
-              <div className={IT('EntryIcon', { type: item.type })}></div>
-              <div className={IT('Text')}>{item.name}</div>
-            </div>
+            <NavLink to={`./${item.name}`}>
+              <div className={IT('Name')}>
+                <div className={IT('EntryIcon', { type: item.type })}></div>
+                <div className={IT('Text')}>{item.name}</div>
+              </div>
+            </NavLink>
             <div className={IT('Commit')}>
               <div className={[IT('Text'), 'Link'].join(' ')}>
                 {item.commit}
@@ -41,7 +55,3 @@ function InfoTable({ infoTableItems }) {
     </div>
   );
 }
-
-export default connect(state => ({
-  infoTableItems: state.infoTableItems
-}))(InfoTable);
