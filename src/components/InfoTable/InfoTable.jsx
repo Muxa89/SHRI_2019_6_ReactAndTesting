@@ -23,6 +23,12 @@ export default function InfoTable() {
   }, [params]);
 
   const infoTableItems = useSelector(state => state.infoTableItems);
+  if (params.repositoryId !== undefined) {
+    infoTableItems.splice(0, 0, {
+      name: '../',
+      type: 'folder'
+    });
+  }
 
   return (
     <div className={IT()}>

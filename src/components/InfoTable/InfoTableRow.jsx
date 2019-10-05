@@ -4,9 +4,9 @@ import { NavLink, useParams } from 'react-router-dom';
 import { IT } from './InfoTable';
 
 const getItemLink = (item, params) => {
-  const { repositoryId, hash, path } = params;
-
   let res = '/';
+
+  const repositoryId = params.repositoryId;
 
   if (repositoryId === undefined) {
     res += `${item.name}/`;
@@ -15,17 +15,55 @@ const getItemLink = (item, params) => {
 
   res += `${repositoryId}/`;
   res += item.type === 'folder' ? `tree/` : 'blob/';
+
+  const hash = params.hash;
+
   res += `${hash || 'master'}/`;
-  res += `${path || ''}${path !== undefined ? '/' : ''}`;
-  res += `${item.name}`;
+
+  let path = params.path;
+  if (path === undefined) {
+    path = '';
+  } else {
+    path = path
+      .split('/')
+      .filter(item => item !== '')
+      .join('/');
+  }
+  res += `${path || ''}${path !== '' ? '/' : ''}${item.name}`;
   return res;
+};
+
+const getParentLink = (item, { repositoryId, hash, path }) => {
+  if (path !== undefined) {
+    let pathParts = path.split('/').filter(item => item !== '');
+    if (pathParts.length === 1) {
+      return getItemLink({ name: '', type: item.type }, { repositoryId, hash });
+    } else {
+      return getItemLink(
+        { name: '', type: item.type },
+        {
+          repositoryId,
+          hash,
+          path: pathParts.slice(0, pathParts.length - 1).join('/')
+        }
+      );
+    }
+  } else {
+    return '/';
+  }
 };
 
 export default ({ item }) => {
   const params = useParams();
   return (
     <div className={IT('Row')} key={`${item.name}:${item.commit}`}>
-      <NavLink to={getItemLink(item, params)}>
+      <NavLink
+        to={
+          item.name === '../'
+            ? getParentLink(item, params)
+            : getItemLink(item, params)
+        }
+      >
         <div className={IT('Name')}>
           <div className={IT('EntryIcon', { type: item.type })}></div>
           <div className={IT('Text')}>{item.name}</div>
