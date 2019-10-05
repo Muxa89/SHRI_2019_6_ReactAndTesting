@@ -34,7 +34,23 @@ export default function InfoTable() {
       {infoTableItems.map(item => {
         return (
           <div className={IT('Row')} key={`${item.name}:${item.commit}`}>
-            <NavLink to={`./${item.name}`}>
+            <NavLink
+              to={() => {
+                let res = '/';
+
+                if (repositoryId === undefined) {
+                  res += `${item.name}/`;
+                  return res;
+                }
+
+                res += `${repositoryId}/`;
+                res += item.type === 'folder' ? `tree/` : 'blob/';
+                res += `${hash || 'master'}/`;
+                res += `${path || ''}${path !== undefined ? '/' : ''}`;
+                res += `${item.name}`;
+                return res;
+              }}
+            >
               <div className={IT('Name')}>
                 <div className={IT('EntryIcon', { type: item.type })}></div>
                 <div className={IT('Text')}>{item.name}</div>
