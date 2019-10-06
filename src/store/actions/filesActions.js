@@ -17,8 +17,6 @@ function formatDate(date) {
 
 export function loadFiles(repositoryId, hash, treePath) {
   return function(dispatch) {
-    dispatch(setInfoTableItems([]));
-    
     let requestAddress = 'http://localhost:3000/api/repos';
     if (repositoryId !== undefined) {
       requestAddress += `/${repositoryId}`;

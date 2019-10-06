@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { cn } from '@bem-react/classname';
 
@@ -14,21 +14,29 @@ import InfoTableRow from './InfoTableRow';
 export const IT = cn('InfoTable');
 
 export default function InfoTable() {
-  const params = useParams();
+  const urlParams = useParams();
+  const { repositoryId, hash, path } = urlParams;
+  const [tableState, setTableState] = useState('ready');
+  const infoTableItems = useSelector(state => {
+    const res = state.infoTableItems || [];
+    if (repositoryId !== undefined && res.length > 0 && res[0].name !== '../') {
+      res.splice(0, 0, {
+        name: '../',
+        type: 'folder'
+      });
+    }
+    return res;
+  }, shallowEqual);
+
   const dispatch = useDispatch();
-
   useEffect(() => {
-    const { repositoryId, hash, path } = params;
-    dispatch(loadFiles(repositoryId, hash, path));
-  }, [params]);
-
-  const infoTableItems = useSelector(state => state.infoTableItems);
-  if (params.repositoryId !== undefined) {
-    infoTableItems.splice(0, 0, {
-      name: '../',
-      type: 'folder'
-    });
-  }
+    if (tableState === 'ready') {
+      setTableState('loading');
+      dispatch(loadFiles(repositoryId, hash, path)).then(() => {
+        setTableState('ready');
+      });
+    }
+  }, [urlParams, infoTableItems]);
 
   return (
     <div className={IT()}>
@@ -39,9 +47,15 @@ export default function InfoTable() {
         <div className={IT('Commiter')}>Commiter</div>
         <div className={IT('Date')}>Updated</div>
       </div>
-      {infoTableItems.map(item => (
-        <InfoTableRow item={item} key={`${item.name}_${item.commit}`} />
-      ))}
+      {tableState === 'ready' &&
+        infoTableItems.map(item => (
+          <InfoTableRow
+            item={item}
+            key={`${repositoryId || ''}_${hash || ''}_${path || ''}_${
+              item.name
+            }`}
+          />
+        ))}
     </div>
   );
 }
