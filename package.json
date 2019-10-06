@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --mode=development",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:ui": "webpack-dev-server --mode=development",
+    "start:backend": "node ./src/server/server.js"
   },
   "author": "",
   "license": "ISC",
@@ -32,6 +32,8 @@
     "@bem-react/classname": "^1.5.6",
     "axios": "^0.19.0",
     "babel-plugin-prismjs": "^1.1.1",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
     "file-loader": "^4.2.0",
     "prismjs": "^1.17.1",
     "react": "^16.10.1",
