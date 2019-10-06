@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route } from "react-router-dom";
 
 import Breadcrumbs from '../Breadcrumbs/Breadcrumbs';
 import ItemAndBranchContainer from '../ItemAndBranchContainer/ItemAndBranchContainer';
@@ -15,7 +16,7 @@ export default function Main() {
       <ItemAndBranchContainer />
       <LastCommitInfo />
       <ViewSelector />
-      <InfoTable />
+      <Route path={['/:repositoryId?/tree/:hash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)', '/:repositoryId?/tree/:hash?', '/:repositoryId?']} component={InfoTable} />
     </div>
   );
 }

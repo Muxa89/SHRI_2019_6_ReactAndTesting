@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
@@ -16,7 +16,7 @@ store.subscribe(() => console.log(store.getState()));
 ReactDOM.render(
   <Provider store={store}>
     <Router>
-      <Route path={['/:repositoryId?/tree/:hash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)', '/:repositoryId?/tree/:hash?', '/:repositoryId?']} component={App} />
+      <App />
     </Router>
   </Provider>,
   document.getElementById('root')
