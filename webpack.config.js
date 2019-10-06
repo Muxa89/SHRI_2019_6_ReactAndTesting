@@ -17,6 +17,10 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
         test: /\.(svg|jpe?g|png|gif)$/,
         loader: 'file-loader',
         options: {
@@ -35,7 +39,9 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, 'public'),
     port: 8000,
-    historyApiFallback: true
+    historyApiFallback: {
+      disableDotRule: true
+    }
   },
   devtool: 'inline-source-map',
   plugins: [new webpack.HotModuleReplacementPlugin()]
