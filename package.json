@@ -6,9 +6,9 @@
   "scripts": {
     "start:ui": "webpack-dev-server --mode=development",
     "start:backend": "node ./src/server/server.js",
-    "start:backend_stub": "node ./test/server/server_stub.js",
+    "start:backend_stub": "node ./test/integration/server/server_stub.js",
     "test": "jest",
-    "test:int": "hermione test/hermione/simple.hermione.js"
+    "test:int": "hermione test/integration/hermione/simple.hermione.js"
   },
   "author": "",
   "license": "ISC",
