@@ -24,6 +24,7 @@
     "eslint-plugin-react": "^7.15.0",
     "hermione": "^2.12.6",
     "jest": "^24.9.0",
+    "mock-spawn": "^0.2.6",
     "node-sass": "^4.12.0",
     "prettier": "^1.18.2",
     "sass": "^1.22.12",
@@ -49,6 +50,7 @@
     "react-redux": "^7.1.1",
     "react-router-dom": "^5.1.2",
     "redux": "^4.0.4",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "supertest": "^4.0.2"
   }
 }

@@ -6,7 +6,7 @@ const execFile = promisify(childProcess.execFile);
 
 const getGitDir = folder => {
   return execFile('git', ['-C', folder, 'rev-parse', '--git-dir']).then(out =>
-    out.stdout.replace(/^\s|\s$/g, '')
+    out.stdout.replace(/^\s+|\s+$/g, '')
   );
 };
 
@@ -29,7 +29,7 @@ const getAllRepositories = (root, callback) => {
       )
     ).then(() => {
       res.sort();
-      callback(res);
+      callback(null, res);
     });
   });
 };
