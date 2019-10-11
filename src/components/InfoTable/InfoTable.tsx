@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { cn } from '@bem-react/classname';
@@ -22,7 +23,7 @@ export default function InfoTable() {
     if (repositoryId !== undefined && res.length > 0 && res[0].name !== '../') {
       res.splice(0, 0, {
         name: '../',
-        type: 'folder'
+        type: 'parent'
       });
     }
     return res;
