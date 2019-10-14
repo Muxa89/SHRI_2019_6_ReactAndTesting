@@ -2,9 +2,14 @@ import * as React from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { cn } from '@bem-react/classname';
 import { isUndefined as isUndef } from 'lodash';
+import {
+  InfoTableItemProps,
+  InfoTableUrlParams,
+  InfoTableItem,
+  InfoTableItemType
+} from './InfoTableTypes';
 
 export const IT = cn('InfoTable');
-// import { IT } from './InfoTable';
 
 const isUndefined = (arr: Array<string | undefined>): boolean =>
   arr.every(isUndef);
@@ -105,42 +110,9 @@ const getLink = (
   }
 };
 
-const getItemLinkWrapper = (
-  params: InfoTableUrlParams,
-  item: InfoTableItem
-): string => {
-  const link = getItemLink(params, item);
-  console.log(JSON.stringify(params), JSON.stringify(item), link);
-  return link;
-};
-
-export interface InfoTableItem {
-  type: InfoTableItemType;
-  name: string;
-  commit?: string;
-  message?: string;
-  commiter?: string;
-  date?: string;
-}
-
-export interface InfoTableItemParams {
-  item: InfoTableItem;
-}
-
-export enum InfoTableItemType {
-  REPOSITORY = 'repository',
-  FOLDER = 'folder',
-  FILE = 'file',
-  PARENT = 'parent'
-}
-
-export interface InfoTableUrlParams {
-  repositoryId?: string;
-  hash?: string;
-  path?: string;
-}
-
-export default ({ item }: InfoTableItemParams) => {
+export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({
+  item
+}) => {
   const params = useParams() as InfoTableUrlParams;
 
   let link = getLink(params, item);
@@ -152,7 +124,14 @@ export default ({ item }: InfoTableItemParams) => {
     <div className={IT('Row')} key={`${item.name}:${item.commit}`}>
       <NavLink to={link}>
         <div className={IT('Name')}>
-          <div className={IT('EntryIcon', { type: item.type })}></div>
+          <div
+            className={IT('EntryIcon', {
+              type:
+                item.type !== InfoTableItemType.FILE
+                  ? InfoTableItemType.FOLDER
+                  : InfoTableItemType.FILE
+            })}
+          ></div>
           <div className={IT('Text')}>{item.name}</div>
         </div>
       </NavLink>
