@@ -1,11 +1,12 @@
 /* eslint-disable no-undef */
-const request = require('supertest');
+import * as request from 'supertest';
 
-require('../mock/child_process-execFile');
-require('../mock/fs-readdir');
-require('../mock/child_process-spawn');
+import '../mock/child_process-execFile';
+import '../mock/fs-readdir';
+import '../mock/child_process-spawn';
 
-const { getServer } = require('../../../src/server/app.js');
+import { getServer } from '../../../src/server/app';
+
 const app = getServer('path_to_root');
 
 test('/api/repos', () => {
@@ -19,6 +20,12 @@ test('/api/repos', () => {
       ]);
     });
 });
+
+export interface HasName {
+  name: string;
+}
+
+export const sortFn = (a: HasName, b: HasName) => (a.name < b.name ? -1 : 1);
 
 describe('/api/repos/:repositoryId/tree*', () => {
   const info = {
@@ -53,7 +60,7 @@ describe('/api/repos/:repositoryId/tree*', () => {
     commiter: info.commiter,
     timestamp: info.timestamp
   }));
-  const sortFn = (a, b) => (a.name < b.name ? -1 : 1);
+
   expected.sort(sortFn);
 
   test('/api/repos/:repositoryId', () => {

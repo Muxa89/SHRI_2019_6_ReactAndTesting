@@ -5,7 +5,7 @@ import { promisify } from 'util';
 
 const execFile = promisify(childProcess.execFile);
 
-const getGitDir = (folder: string) => {
+export const getGitDir = (folder: string) => {
   return execFile('git', ['-C', folder, 'rev-parse', '--git-dir']).then(out =>
     out.stdout.replace(/^\s+|\s+$/g, '')
   );
@@ -62,11 +62,11 @@ function sortFilesTree(a: FileTreeObject, b: FileTreeObject): number {
   }
 }
 
-interface FilesTreeParams extends GetFilesTreeInfoParams {
+export interface FilesTreeParams extends GetFilesTreeInfoParams {
   gitFolder: string;
 }
 
-const getFilesTree = ({
+export const getFilesTree = ({
   folder,
   gitFolder,
   hash,
@@ -99,7 +99,7 @@ const getFilesTree = ({
   });
 };
 
-const getFileInfo = ({
+export const getFileInfo = ({
   folder,
   gitFolder,
   hash,

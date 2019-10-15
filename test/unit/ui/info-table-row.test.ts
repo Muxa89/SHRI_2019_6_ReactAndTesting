@@ -2,11 +2,14 @@
 
 import {
   getItemLink,
-  getParentLink,
+  getParentLink
+} from '../../../src/components/InfoTable/InfoTableRow';
+
+import {
   InfoTableItemType,
   InfoTableUrlParams,
   InfoTableItem
-} from '../../../src/components/InfoTable/InfoTableRow';
+} from '../../../src/components/InfoTable/InfoTableTypes';
 
 describe('item link test', () => {
   describe('correct requests', () => {
