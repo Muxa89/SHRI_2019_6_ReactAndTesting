@@ -1,22 +1,30 @@
-const fs = require('fs');
-const { resolve } = require('path');
-const childProcess = require('child_process');
-const { promisify } = require('util');
+import * as fs from 'fs';
+import { resolve } from 'path';
+import * as childProcess from 'child_process';
+import { promisify } from 'util';
+
 const execFile = promisify(childProcess.execFile);
 
-const getGitDir = folder => {
+const getGitDir = (folder: string) => {
   return execFile('git', ['-C', folder, 'rev-parse', '--git-dir']).then(out =>
     out.stdout.replace(/^\s+|\s+$/g, '')
   );
 };
 
-const getAllRepositories = (root, callback) => {
+interface getAllRepositoriesCallback {
+  (err: Error | null, res: Array<string>): void;
+}
+
+export const getAllRepositories = (
+  root: string,
+  callback: getAllRepositoriesCallback
+): void => {
   fs.readdir(root, { withFileTypes: true }, (err, files) => {
     const folders = files
       .filter(file => file.isDirectory())
       .map(file => file.name);
 
-    const res = [];
+    const res: Array<string> = [];
 
     Promise.all(
       folders.map(folder =>
@@ -34,7 +42,17 @@ const getAllRepositories = (root, callback) => {
   });
 };
 
-function sortFilesTree(a, b) {
+enum FileTreeObjectType {
+  FILE = 'file',
+  FOLDER = 'folder'
+}
+
+interface FileTreeObject {
+  name: string;
+  type: FileTreeObjectType;
+}
+
+function sortFilesTree(a: FileTreeObject, b: FileTreeObject): number {
   if (a.type === 'folder' && b.type !== 'folder') {
     return -1;
   } else if (a.type !== 'folder' && b.type === 'folder') {
@@ -44,7 +62,16 @@ function sortFilesTree(a, b) {
   }
 }
 
-const getFilesTree = ({ folder, gitFolder, hash, treePath }) => {
+interface FilesTreeParams extends GetFilesTreeInfoParams {
+  gitFolder: string;
+}
+
+const getFilesTree = ({
+  folder,
+  gitFolder,
+  hash,
+  treePath
+}: FilesTreeParams) => {
   const command = 'git';
   const params = [
     '--git-dir',
@@ -59,17 +86,25 @@ const getFilesTree = ({ folder, gitFolder, hash, treePath }) => {
     lines.splice(lines.length - 1, 1);
 
     const res = lines
-      .map(line => ({
-        name: line.replace('/', ''),
-        type: line.indexOf('/') === -1 ? 'file' : 'folder'
-      }))
+      .map(
+        line =>
+          ({
+            name: line.replace('/', ''),
+            type: line.indexOf('/') === -1 ? 'file' : 'folder'
+          } as FileTreeObject)
+      )
       .sort(sortFilesTree);
 
     return res;
   });
 };
 
-const getFileInfo = ({ folder, gitFolder, hash, treePath }) => {
+const getFileInfo = ({
+  folder,
+  gitFolder,
+  hash,
+  treePath
+}: FilesTreeParams) => {
   const command = 'git';
   const params = [
     '--git-dir',
@@ -95,12 +130,31 @@ const getFileInfo = ({ folder, gitFolder, hash, treePath }) => {
   });
 };
 
-const getFilesTreeInfo = ({ folder, hash, treePath }) => {
+interface GetFilesTreeInfoParams {
+  folder: string;
+  hash: string;
+  treePath: string;
+}
+
+export interface FileTreeInfoObject {
+  name: string;
+  type: FileTreeObjectType;
+  commit: string;
+  message: string;
+  commiter: string;
+  timestamp: string;
+}
+
+export const getFilesTreeInfo = ({
+  folder,
+  hash,
+  treePath
+}: GetFilesTreeInfoParams) => {
   hash = hash || 'master';
   treePath = treePath || '';
   return getGitDir(folder).then(gitFolder =>
     getFilesTree({ folder, gitFolder, hash, treePath }).then(files => {
-      const res = [];
+      const res: Array<FileTreeInfoObject> = [];
 
       return Promise.all(
         files.map(file =>
@@ -129,7 +183,17 @@ const getFilesTreeInfo = ({ folder, hash, treePath }) => {
   );
 };
 
-const getBlobContentPromise = (folder, hash, blobPath) => {
+export interface GetBlobContentPromiseParams {
+  folder: string;
+  hash: string;
+  blobPath: string;
+}
+
+export const getBlobContentPromise = ({
+  folder,
+  hash,
+  blobPath
+}: GetBlobContentPromiseParams) => {
   return getGitDir(folder).then(
     gitFolder =>
       new Promise((res, rej) => {
