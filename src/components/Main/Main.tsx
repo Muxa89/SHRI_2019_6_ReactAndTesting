@@ -18,10 +18,7 @@ export default function Main() {
       <LastCommitInfo />
       <ViewSelector />
       <Switch>
-        <Route
-          path='/:repositoryId?/blob/:hash/:path([a-zA-Z0-9а-яА-Я._\-/]+)'
-          component={DetailPanel}
-        />
+        <Route path='/:repositoryId?/blob/:hash/:path([a-zA-Z0-9а-яА-Я._\-/]+)' component={DetailPanel} />
         <Route
           path={[
             '/:repositoryId?/tree/:hash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)',

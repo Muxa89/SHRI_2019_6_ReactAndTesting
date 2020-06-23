@@ -2,20 +2,13 @@ import * as React from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { cn } from '@bem-react/classname';
 import { isUndefined as isUndef } from 'lodash';
-import {
-  InfoTableItemProps,
-  InfoTableUrlParams,
-  InfoTableItem,
-  InfoTableItemType
-} from './InfoTableTypes';
+import { InfoTableItemProps, InfoTableUrlParams, InfoTableItem, InfoTableItemType } from './InfoTableTypes';
 
 export const IT = cn('InfoTable');
 
-const isUndefined = (arr: Array<string | undefined>): boolean =>
-  arr.every(isUndef);
+const isUndefined = (arr: Array<string | undefined>): boolean => arr.every(isUndef);
 
-const isNotEmpty = (arr: Array<string | undefined>): boolean =>
-  arr.every(value => !isUndef(value) && value !== '');
+const isNotEmpty = (arr: Array<string | undefined>): boolean => arr.every(value => !isUndef(value) && value !== '');
 
 const rebuildPath = (path: string | undefined): string =>
   (path || '')
@@ -23,10 +16,7 @@ const rebuildPath = (path: string | undefined): string =>
     .filter(part => part !== '')
     .join('/');
 
-export const getItemLink = (
-  currentUrlParams: InfoTableUrlParams,
-  targetItem?: InfoTableItem
-): string => {
+export const getItemLink = (currentUrlParams: InfoTableUrlParams, targetItem?: InfoTableItem): string => {
   const { repositoryId, hash, path } = currentUrlParams;
   const { name, type } = targetItem || {};
 
@@ -80,19 +70,10 @@ export const getParentLink = (currentUrlParams: InfoTableUrlParams): string => {
     return '/';
   }
 
-  throw new Error(
-    [
-      'Parameters is incorrect.',
-      'params:',
-      `${JSON.stringify(currentUrlParams)},`
-    ].join(' ')
-  );
+  throw new Error(['Parameters is incorrect.', 'params:', `${JSON.stringify(currentUrlParams)},`].join(' '));
 };
 
-const getLink = (
-  params: InfoTableUrlParams,
-  item: InfoTableItem
-): string | null => {
+const getLink = (params: InfoTableUrlParams, item: InfoTableItem): string | null => {
   const { type } = item || {};
   try {
     if (type === InfoTableItemType.PARENT) {
@@ -101,18 +82,12 @@ const getLink = (
       return getItemLink(params, item);
     }
   } catch (err) {
-    console.error(
-      `Error occured while preparing link for item in table: ${JSON.stringify(
-        err
-      )}`
-    );
+    console.error(`Error occured while preparing link for item in table: ${JSON.stringify(err)}`);
     return null;
   }
 };
 
-export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({
-  item
-}) => {
+export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({ item }) => {
   const params = useParams() as InfoTableUrlParams;
 
   let link = getLink(params, item);
@@ -126,10 +101,7 @@ export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({
         <div className={IT('Name')}>
           <div
             className={IT('EntryIcon', {
-              type:
-                item.type !== InfoTableItemType.FILE
-                  ? InfoTableItemType.FOLDER
-                  : InfoTableItemType.FILE
+              type: item.type !== InfoTableItemType.FILE ? InfoTableItemType.FOLDER : InfoTableItemType.FILE
             })}
           ></div>
           <div className={IT('Text')}>{item.name}</div>
@@ -139,9 +111,7 @@ export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({
         <div className={[IT('Text'), 'Link'].join(' ')}>{item.commit}</div>
       </div>
       <div className={IT('Message')}>{item.message}</div>
-      <div className={[IT('Commiter'), 'Commiter'].join(' ')}>
-        {item.commiter}
-      </div>
+      <div className={[IT('Commiter'), 'Commiter'].join(' ')}>{item.commiter}</div>
       <div className={IT('Date')}>{item.date}</div>
     </div>
   );

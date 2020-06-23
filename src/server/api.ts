@@ -6,23 +6,16 @@ import { promisify } from 'util';
 const execFile = promisify(childProcess.execFile);
 
 export const getGitDir = (folder: string) => {
-  return execFile('git', ['-C', folder, 'rev-parse', '--git-dir']).then(out =>
-    out.stdout.replace(/^\s+|\s+$/g, '')
-  );
+  return execFile('git', ['-C', folder, 'rev-parse', '--git-dir']).then(out => out.stdout.replace(/^\s+|\s+$/g, ''));
 };
 
 interface getAllRepositoriesCallback {
   (err: Error | null, res: Array<string>): void;
 }
 
-export const getAllRepositories = (
-  root: string,
-  callback: getAllRepositoriesCallback
-): void => {
+export const getAllRepositories = (root: string, callback: getAllRepositoriesCallback): void => {
   fs.readdir(root, { withFileTypes: true }, (err, files) => {
-    const folders = files
-      .filter(file => file.isDirectory())
-      .map(file => file.name);
+    const folders = files.filter(file => file.isDirectory()).map(file => file.name);
 
     const res: Array<string> = [];
 
@@ -66,19 +59,9 @@ export interface FilesTreeParams extends GetFilesTreeInfoParams {
   gitFolder: string;
 }
 
-export const getFilesTree = ({
-  folder,
-  gitFolder,
-  hash,
-  treePath
-}: FilesTreeParams) => {
+export const getFilesTree = ({ folder, gitFolder, hash, treePath }: FilesTreeParams) => {
   const command = 'git';
-  const params = [
-    '--git-dir',
-    resolve(folder, gitFolder),
-    'show',
-    (hash || 'master') + ':' + (treePath || '')
-  ];
+  const params = ['--git-dir', resolve(folder, gitFolder), 'show', (hash || 'master') + ':' + (treePath || '')];
 
   return execFile(command, params).then(out => {
     const lines = out.stdout.split('\n');
@@ -99,12 +82,7 @@ export const getFilesTree = ({
   });
 };
 
-export const getFileInfo = ({
-  folder,
-  gitFolder,
-  hash,
-  treePath
-}: FilesTreeParams) => {
+export const getFileInfo = ({ folder, gitFolder, hash, treePath }: FilesTreeParams) => {
   const command = 'git';
   const params = [
     '--git-dir',
@@ -145,11 +123,7 @@ export interface FileTreeInfoObject {
   timestamp: string;
 }
 
-export const getFilesTreeInfo = ({
-  folder,
-  hash,
-  treePath
-}: GetFilesTreeInfoParams) => {
+export const getFilesTreeInfo = ({ folder, hash, treePath }: GetFilesTreeInfoParams) => {
   hash = hash || 'master';
   treePath = treePath || '';
   return getGitDir(folder).then(gitFolder =>
@@ -189,11 +163,7 @@ export interface GetBlobContentPromiseParams {
   blobPath: string;
 }
 
-export const getBlobContentPromise = ({
-  folder,
-  hash,
-  blobPath
-}: GetBlobContentPromiseParams) => {
+export const getBlobContentPromise = ({ folder, hash, blobPath }: GetBlobContentPromiseParams) => {
   return getGitDir(folder).then(
     gitFolder =>
       new Promise((res, rej) => {

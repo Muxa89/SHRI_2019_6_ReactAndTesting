@@ -7,9 +7,7 @@ export interface ISetInfoTableItems {
   items: Array<InfoTableItem>;
 }
 
-export function setInfoTableItems(
-  items: Array<InfoTableItem>
-): ISetInfoTableItems {
+export function setInfoTableItems(items: Array<InfoTableItem>): ISetInfoTableItems {
   return {
     type: SET_INFO_TABLE_ITEMS,
     items

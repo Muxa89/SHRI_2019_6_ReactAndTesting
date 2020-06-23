@@ -10,10 +10,7 @@ import './InfoTable.sass';
 import '../Link/Link.sass';
 import '../Commiter/Commiter.sass';
 
-import {
-  loadFiles,
-  InfoTableItemRequestThunkAction
-} from '../../store/actions/filesActions';
+import { loadFiles, InfoTableItemRequestThunkAction } from '../../store/actions/filesActions';
 
 import { InfoTableRow } from './InfoTableRow';
 import { InfoTableUrlParams, InfoTableItemType } from './InfoTableTypes';
@@ -36,9 +33,7 @@ export default function InfoTable() {
     return res;
   }, shallowEqual);
 
-  const dispatch = useDispatch<
-    ThunkDispatch<AppState, null, Action<InfoTableItemRequestThunkAction>>
-  >();
+  const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<InfoTableItemRequestThunkAction>>>();
   useEffect(() => {
     if (tableState === 'ready') {
       setTableState('loading');
@@ -59,12 +54,7 @@ export default function InfoTable() {
       </div>
       {tableState === 'ready' &&
         infoTableItems.map(item => (
-          <InfoTableRow
-            item={item}
-            key={`${repositoryId || ''}_${hash || ''}_${path || ''}_${
-              item.name
-            }`}
-          />
+          <InfoTableRow item={item} key={`${repositoryId || ''}_${hash || ''}_${path || ''}_${item.name}`} />
         ))}
     </div>
   );

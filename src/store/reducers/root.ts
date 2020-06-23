@@ -1,8 +1,5 @@
 import { combineReducers } from 'redux';
-import {
-  SET_INFO_TABLE_ITEMS,
-  ISetInfoTableItems
-} from '../actions/infoTableActions';
+import { SET_INFO_TABLE_ITEMS, ISetInfoTableItems } from '../actions/infoTableActions';
 import { InfoTableItem } from '../../components/InfoTable/InfoTableTypes';
 
 export interface AppState {

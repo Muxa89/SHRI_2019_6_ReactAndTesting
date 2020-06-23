@@ -1,15 +1,8 @@
 /* eslint-disable no-undef */
 
-import {
-  getItemLink,
-  getParentLink
-} from '../../../src/components/InfoTable/InfoTableRow';
+import { getItemLink, getParentLink } from '../../../src/components/InfoTable/InfoTableRow';
 
-import {
-  InfoTableItemType,
-  InfoTableUrlParams,
-  InfoTableItem
-} from '../../../src/components/InfoTable/InfoTableTypes';
+import { InfoTableItemType, InfoTableUrlParams, InfoTableItem } from '../../../src/components/InfoTable/InfoTableTypes';
 
 describe('item link test', () => {
   describe('correct requests', () => {
@@ -30,9 +23,7 @@ describe('item link test', () => {
         repositoryId: 'repoName',
         hash: 'hashName'
       };
-      expect(getItemLink(params)).toEqual(
-        `/${params.repositoryId}/tree/${params.hash}/`
-      );
+      expect(getItemLink(params)).toEqual(`/${params.repositoryId}/tree/${params.hash}/`);
     });
 
     test('to some path', () => {
@@ -41,9 +32,7 @@ describe('item link test', () => {
         hash: 'hashName',
         path: 'path/to/some/folder'
       };
-      expect(getItemLink(params)).toEqual(
-        `/${params.repositoryId}/tree/${params.hash}/${params.path}/`
-      );
+      expect(getItemLink(params)).toEqual(`/${params.repositoryId}/tree/${params.hash}/${params.path}/`);
     });
 
     test('to folder in root of repository (path undefined)', () => {
@@ -55,9 +44,7 @@ describe('item link test', () => {
         name: 'itemName',
         type: InfoTableItemType.FOLDER
       };
-      expect(getItemLink(params, item)).toEqual(
-        `/${params.repositoryId}/tree/${params.hash}/${item.name}/`
-      );
+      expect(getItemLink(params, item)).toEqual(`/${params.repositoryId}/tree/${params.hash}/${item.name}/`);
     });
 
     test('to file in root of repository (path undefined)', () => {
@@ -69,9 +56,7 @@ describe('item link test', () => {
         name: 'itemName',
         type: InfoTableItemType.FILE
       };
-      expect(getItemLink(params, item)).toEqual(
-        `/${params.repositoryId}/blob/${params.hash}/${item.name}`
-      );
+      expect(getItemLink(params, item)).toEqual(`/${params.repositoryId}/blob/${params.hash}/${item.name}`);
     });
 
     test('to folder in some path', () => {
@@ -125,9 +110,7 @@ describe('item link test', () => {
         hash: 'hashName',
         path: 'level1/level2'
       };
-      expect(getParentLink(params)).toEqual(
-        `/${params.repositoryId}/tree/${params.hash}/level1/`
-      );
+      expect(getParentLink(params)).toEqual(`/${params.repositoryId}/tree/${params.hash}/level1/`);
     });
 
     test('to trim slashes in path', () => {
@@ -137,9 +120,7 @@ describe('item link test', () => {
         hash: 'hashName',
         path: `/${expected}/`
       };
-      expect(getItemLink(params)).toEqual(
-        `/${params.repositoryId}/tree/${params.hash}/${expected}/`
-      );
+      expect(getItemLink(params)).toEqual(`/${params.repositoryId}/tree/${params.hash}/${expected}/`);
     });
   });
 
