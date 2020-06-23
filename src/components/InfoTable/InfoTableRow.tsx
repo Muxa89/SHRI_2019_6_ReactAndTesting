@@ -87,10 +87,10 @@ const getLink = (params: InfoTableUrlParams, item: InfoTableItem): string | null
   }
 };
 
-export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({ item }) => {
+export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({ item }: InfoTableItemProps) => {
   const params = useParams() as InfoTableUrlParams;
 
-  let link = getLink(params, item);
+  const link = getLink(params, item);
   if (link === null) {
     return null;
   }
@@ -103,7 +103,7 @@ export const InfoTableRow: React.FunctionComponent<InfoTableItemProps> = ({ item
             className={IT('EntryIcon', {
               type: item.type !== InfoTableItemType.FILE ? InfoTableItemType.FOLDER : InfoTableItemType.FILE
             })}
-          ></div>
+          />
           <div className={IT('Text')}>{item.name}</div>
         </div>
       </NavLink>

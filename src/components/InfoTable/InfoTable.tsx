@@ -18,7 +18,7 @@ import { AppState } from '../../store/reducers/root';
 
 export const IT = cn('InfoTable');
 
-export default function InfoTable() {
+const InfoTable = (): React.ReactElement => {
   const urlParams = useParams();
   const { repositoryId, hash, path } = urlParams as InfoTableUrlParams;
   const [tableState, setTableState] = useState('ready');
@@ -49,7 +49,7 @@ export default function InfoTable() {
         <div className={IT('Name')}>Name</div>
         <div className={IT('Commit')}>Last commit</div>
         <div className={IT('Message')}>Commit message</div>
-        <div className={IT('Commiter')}>Commiter</div>
+        <div className={IT('Committer')}>Committer</div>
         <div className={IT('Date')}>Updated</div>
       </div>
       {tableState === 'ready' &&
@@ -58,4 +58,6 @@ export default function InfoTable() {
         ))}
     </div>
   );
-}
+};
+
+export default InfoTable;

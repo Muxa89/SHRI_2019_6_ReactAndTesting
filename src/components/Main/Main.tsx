@@ -10,24 +10,23 @@ import DetailPanel from '../DetailPanel/DetailPanel';
 
 import './Main.sass';
 
-export default function Main() {
-  return (
-    <div className='Main'>
-      <Breadcrumbs />
-      <ItemAndBranchContainer />
-      <LastCommitInfo />
-      <ViewSelector />
-      <Switch>
-        <Route path='/:repositoryId?/blob/:hash/:path([a-zA-Z0-9а-яА-Я._\-/]+)' component={DetailPanel} />
-        <Route
-          path={[
-            '/:repositoryId?/tree/:hash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)',
-            '/:repositoryId?/tree/:hash?',
-            '/:repositoryId?'
-          ]}
-          component={InfoTable}
-        />
-      </Switch>
-    </div>
-  );
-}
+const Main = (): React.ReactElement => (
+  <div className='Main'>
+    <Breadcrumbs />
+    <ItemAndBranchContainer />
+    <LastCommitInfo />
+    <ViewSelector />
+    <Switch>
+      <Route path='/:repositoryId?/blob/:hash/:path([a-zA-Z0-9а-яА-Я._\-/]+)' component={DetailPanel} />
+      <Route
+        path={[
+          '/:repositoryId?/tree/:hash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)',
+          '/:repositoryId?/tree/:hash?',
+          '/:repositoryId?'
+        ]}
+        component={InfoTable}
+      />
+    </Switch>
+  </div>
+);
+export default Main;

@@ -6,12 +6,12 @@ import Footer from './Footer/Footer';
 
 import './App.sass';
 
-export default () => {
-  return (
-    <div className='App'>
-      <Header />
-      <Main />
-      <Footer />
-    </div>
-  );
-};
+const App = (): React.ReactElement => (
+  <div className='App'>
+    <Header />
+    <Main />
+    <Footer />
+  </div>
+);
+
+export default App;
