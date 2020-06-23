@@ -1,7 +1,7 @@
-const fs = require('fs');
-const { resolve } = require('path');
+import * as fs from 'fs';
+import { resolve } from 'path';
 
-const { getServer } = require('./app.js');
+import { getServer } from './app';
 
 function getRootDir() {
   const rootDir = process.argv[2];
@@ -19,7 +19,7 @@ function getRootDir() {
   return resolve(rootDir);
 }
 
-function startServer(root) {
+function startServer(root: string) {
   const app = getServer(root);
   const port = 3000;
   app.listen(port, () => {

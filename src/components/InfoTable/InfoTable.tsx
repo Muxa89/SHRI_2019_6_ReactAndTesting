@@ -1,4 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { Action } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { cn } from '@bem-react/classname';
@@ -7,28 +10,35 @@ import './InfoTable.sass';
 import '../Link/Link.sass';
 import '../Commiter/Commiter.sass';
 
-import { loadFiles } from '../../store/actions/filesActions';
+import {
+  loadFiles,
+  InfoTableItemRequestThunkAction
+} from '../../store/actions/filesActions';
 
-import InfoTableRow from './InfoTableRow';
+import { InfoTableRow } from './InfoTableRow';
+import { InfoTableUrlParams, InfoTableItemType } from './InfoTableTypes';
+import { AppState } from '../../store/reducers/root';
 
 export const IT = cn('InfoTable');
 
 export default function InfoTable() {
   const urlParams = useParams();
-  const { repositoryId, hash, path } = urlParams;
+  const { repositoryId, hash, path } = urlParams as InfoTableUrlParams;
   const [tableState, setTableState] = useState('ready');
-  const infoTableItems = useSelector(state => {
+  const infoTableItems = useSelector((state: AppState) => {
     const res = state.infoTableItems || [];
     if (repositoryId !== undefined && res.length > 0 && res[0].name !== '../') {
       res.splice(0, 0, {
         name: '../',
-        type: 'folder'
+        type: InfoTableItemType.PARENT
       });
     }
     return res;
   }, shallowEqual);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<
+    ThunkDispatch<AppState, null, Action<InfoTableItemRequestThunkAction>>
+  >();
   useEffect(() => {
     if (tableState === 'ready') {
       setTableState('loading');

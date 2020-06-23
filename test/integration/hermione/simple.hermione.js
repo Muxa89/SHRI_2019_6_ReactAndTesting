@@ -29,7 +29,7 @@ describe('Root page', function() {
       .waitForExist('.InfoTable-Row')
       .getUrl()
       .then(url => {
-        assert.equal(url, 'http://localhost:8000/Repo_1/');
+        assert.equal(url, 'http://localhost:8000/Repo_1/tree/master/');
       });
   });
 
@@ -93,7 +93,7 @@ describe('Repository page', function() {
       .waitForExist('.InfoTable-Row')
       .getUrl()
       .then(url => {
-        assert.equal(url, 'http://localhost:8000/Repo_1/tree/master/Folder_1');
+        assert.equal(url, 'http://localhost:8000/Repo_1/tree/master/Folder_1/');
       })
       .getText('.InfoTable-Row > a > .InfoTable-Name > .InfoTable-Text')
       .then(repoNames => {

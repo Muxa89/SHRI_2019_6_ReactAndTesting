@@ -1,16 +1,20 @@
 /* eslint-disable no-undef */
-require('../mock/child_process-execFile');
-require('../mock/fs-readdir');
-require('../mock/child_process-spawn');
+import '../mock/child_process-execFile';
+import '../mock/fs-readdir';
+import '../mock/child_process-spawn';
 
-const {
+import {
   getAllRepositories,
   getBlobContentPromise,
   getFileInfo,
   getFilesTree,
   getFilesTreeInfo,
-  getGitDir
-} = require('../../../src/server/api.js');
+  getGitDir,
+  FilesTreeParams,
+  GetBlobContentPromiseParams
+} from '../../../src/server/api';
+
+import { sortFn } from './app.test';
 
 test('getGitDir', () => {
   getGitDir('someRepo').then(res => {
@@ -25,8 +29,6 @@ test('getAllRepositories', () => {
 });
 
 test('getFilesTree', () => {
-  const sortFn = (a, b) => (a.name < b.name ? -1 : 1);
-
   const expected = [
     { name: '.babelrc', type: 'file' },
     { name: '.dockerignore', type: 'file' },
@@ -50,7 +52,7 @@ test('getFilesTree', () => {
   getFilesTree({
     folder: 'someRoot',
     gitFolder: '.git'
-  }).then(out => {
+  } as FilesTreeParams).then(out => {
     out.sort(sortFn);
     expect(out).toEqual(expected);
   });
@@ -105,7 +107,6 @@ test('getFilesTreeInfo', () => {
     commiter: info.commiter,
     timestamp: info.timestamp
   }));
-  const sortFn = (a, b) => (a.name < b.name ? -1 : 1);
   expected.sort(sortFn);
 
   getFilesTreeInfo({
@@ -121,7 +122,11 @@ test('getFilesTreeInfo', () => {
 test('getBlobContentPromise', () => {
   const stubText = require('../mock/child_process-spawn').stubText;
 
-  getBlobContentPromise('folder', 'master', 'path').then(res => {
+  getBlobContentPromise({
+    folder: 'folder',
+    hash: 'master',
+    blobPath: 'path'
+  } as GetBlobContentPromiseParams).then(res => {
     expect(res).toEqual(stubText);
   });
 });

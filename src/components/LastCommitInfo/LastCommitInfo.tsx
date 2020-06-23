@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 
 import './LastCommitInfo.sass';
 import '../Commiter/Commiter.sass';

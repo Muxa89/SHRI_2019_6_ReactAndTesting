@@ -1,12 +1,17 @@
-const { resolve } = require('path');
+import { resolve } from 'path';
+import * as cors from 'cors';
+import * as express from 'express';
+import { Request, Response } from 'express';
 
-const cors = require('cors');
-const express = require('express');
+import {
+  getAllRepositories,
+  getBlobContentPromise,
+  getFilesTreeInfo,
+  GetBlobContentPromiseParams
+} from './api';
 
-const { getAllRepositories, getBlobContentPromise, getFilesTreeInfo } = require('./api.js');
-
-const treeHandler = (root) => {
-  return (req, res) => {
+const treeHandler = (root: string) => {
+  return (req: Request, res: Response) => {
     getFilesTreeInfo({
       folder: resolve(root, req.params.repositoryId),
       hash: req.params.commitHash,
@@ -15,9 +20,9 @@ const treeHandler = (root) => {
       .then(files => res.json(files))
       .catch(err => res.json(err));
   };
-}
+};
 
-module.exports.getServer = function getServer(root) {
+export function getServer(root: string) {
   const app = express();
   app.use(express.json());
   app.use(cors());
@@ -41,11 +46,11 @@ module.exports.getServer = function getServer(root) {
   app.get(
     `${apiPath}/blob/:commitHash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)`,
     (req, res) =>
-      getBlobContentPromise(
-        resolve(root, req.params.repositoryId),
-        req.params.commitHash,
-        req.params.path
-      ).then(content => {
+      getBlobContentPromise({
+        folder: resolve(root, req.params.repositoryId),
+        hash: req.params.commitHash,
+        blobPath: req.params.path
+      } as GetBlobContentPromiseParams).then(content => {
         const pathParts = req.params.path
           .split('/')
           .filter(part => part !== '');
@@ -61,4 +66,4 @@ module.exports.getServer = function getServer(root) {
   );
 
   return app;
-}
+};
