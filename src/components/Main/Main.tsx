@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import Breadcrumbs from '../Breadcrumbs/Breadcrumbs';
 import ItemAndBranchContainer from '../ItemAndBranchContainer/ItemAndBranchContainer';
@@ -8,25 +8,25 @@ import ViewSelector from '../ViewSelector/ViewSelector';
 import InfoTable from '../InfoTable/InfoTable';
 import DetailPanel from '../DetailPanel/DetailPanel';
 
+import { blobPath, treeModePath } from '../../util/constants';
+
 import './Main.sass';
 
-const Main = (): React.ReactElement => (
-  <div className='Main'>
-    <Breadcrumbs />
-    <ItemAndBranchContainer />
-    <LastCommitInfo />
-    <ViewSelector />
-    <Switch>
-      <Route path='/:repositoryId?/blob/:hash/:path([a-zA-Z0-9а-яА-Я._\-/]+)' component={DetailPanel} />
-      <Route
-        path={[
-          '/:repositoryId?/tree/:hash/:path([a-zA-Z0-9а-яА-Я._\\-/]+)',
-          '/:repositoryId?/tree/:hash?',
-          '/:repositoryId?'
-        ]}
-        component={InfoTable}
-      />
-    </Switch>
-  </div>
-);
+const Main = (): React.ReactElement => {
+  return (
+    <div className='Main'>
+      <Route path={[...treeModePath, blobPath]}>
+        <Breadcrumbs />
+        <ItemAndBranchContainer />
+        <LastCommitInfo />
+        <ViewSelector />
+        <Switch>
+          <Route path={blobPath} component={DetailPanel} />
+          <Route path={treeModePath} component={InfoTable} />
+        </Switch>
+      </Route>
+    </div>
+  );
+};
+
 export default Main;
