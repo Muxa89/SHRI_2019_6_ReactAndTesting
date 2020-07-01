@@ -1,10 +1,12 @@
 import * as React from 'react';
-import Breadcrumb from 'react-bootstrap/Breadcrumb';
+import { slice } from 'lodash';
 import { useParams } from 'react-router-dom';
+
+import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 import './Breadcrumbs.sass';
 
-enum CrumbType {
+export enum CrumbType {
   REPO = 'REPO',
   FOLDER = 'FOLDER'
 }
@@ -12,30 +14,39 @@ enum CrumbType {
 interface Crumb {
   name: string;
   type: CrumbType;
+  href: string;
 }
 
-interface URLParams {
+export interface URLParams {
   repositoryId?: string;
   path?: string;
+  hash?: string;
+  mode?: string;
 }
 
-const getCrumbs = (params: URLParams): Array<Crumb> => {
+export const getHref = ({ repositoryId, mode, hash, path }: URLParams): string => {
+  return `/${repositoryId}${hash || path || mode ? (mode === undefined ? '/tree' : '') : ''}${
+    hash ? '/hash/' + hash : ''
+  }${path ? '/path/' + path : ''}`;
+};
+
+export const getCrumbs = ({ repositoryId, hash, path }: URLParams): Array<Crumb> => {
   const res = [];
 
-  console.log(params);
-
-  if (params.repositoryId) {
+  if (repositoryId) {
     res.push({
-      name: params.repositoryId,
-      type: CrumbType.REPO
+      name: repositoryId,
+      type: CrumbType.REPO,
+      href: getHref({ repositoryId, hash })
     });
   }
 
-  if (params.path) {
-    params.path.split('/').forEach(element => {
+  if (path) {
+    path.split('/').forEach((element, index, array) => {
       res.push({
         name: element,
-        type: CrumbType.FOLDER
+        type: CrumbType.FOLDER,
+        href: getHref({ repositoryId, hash, path: slice(array, 0, index + 1).join('/') })
       });
     });
   }
@@ -43,13 +54,17 @@ const getCrumbs = (params: URLParams): Array<Crumb> => {
   return res;
 };
 
-// TODO add hrefs to crumbs (possibly with react-router.Link)
-const Breadcrumbs = (): React.ReactElement => (
-  <Breadcrumb>
-    {getCrumbs(useParams()).map((crumb, index) => (
-      <Breadcrumb.Item key={index}>{crumb.name}</Breadcrumb.Item>
-    ))}
-  </Breadcrumb>
-);
+const Breadcrumbs = (): React.ReactElement => {
+  const urlParams = useParams();
+  return (
+    <Breadcrumb>
+      {getCrumbs(urlParams).map((crumb, index) => (
+        <Breadcrumb.Item key={index} href={crumb.href}>
+          {crumb.name}
+        </Breadcrumb.Item>
+      ))}
+    </Breadcrumb>
+  );
+};
 
 export default Breadcrumbs;
