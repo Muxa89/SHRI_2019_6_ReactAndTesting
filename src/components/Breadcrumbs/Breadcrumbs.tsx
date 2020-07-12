@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 import './Breadcrumbs.sass';
+import { URLParams } from 'src/data/URLParams';
 
 export enum CrumbType {
   REPO = 'REPO',
@@ -15,13 +16,6 @@ interface Crumb {
   name: string;
   type: CrumbType;
   href: string;
-}
-
-export interface URLParams {
-  repositoryId?: string;
-  path?: string;
-  hash?: string;
-  mode?: string;
 }
 
 export const getHref = ({ repositoryId, mode, hash, path }: URLParams): string => {
