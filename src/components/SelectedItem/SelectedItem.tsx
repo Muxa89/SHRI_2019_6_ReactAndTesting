@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { URLParams } from 'src/data/URLParams';
+import { URLParams } from 'src/interfaces/URLParams';
 import { last } from 'lodash';
 
 const getSelectedItemName = (): string => {

@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 
 import './Breadcrumbs.sass';
-import { URLParams } from 'src/data/URLParams';
+import { URLParams } from 'src/interfaces/URLParams';
 
 export enum CrumbType {
   REPO = 'REPO',

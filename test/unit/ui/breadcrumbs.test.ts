@@ -1,5 +1,5 @@
 import { CrumbType, getCrumbs, getHref } from '../../../src/components/Breadcrumbs/Breadcrumbs';
-import { URLParams } from 'src/data/URLParams';
+import { URLParams } from 'src/interfaces/URLParams';
 
 describe('Tests for breadcrumbs href creation', () => {
   test('Only repository provided', () => {
