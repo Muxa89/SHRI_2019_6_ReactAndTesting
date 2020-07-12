@@ -25,9 +25,10 @@ export interface URLParams {
 }
 
 export const getHref = ({ repositoryId, mode, hash, path }: URLParams): string => {
-  return `/${repositoryId}${hash || path || mode ? (mode === undefined ? '/tree' : '') : ''}${
-    hash ? '/hash/' + hash : ''
-  }${path ? '/path/' + path : ''}`;
+  const modeChunk = hash || path || mode ? (mode === undefined ? '/tree' : '') : '';
+  const hashChunk = hash ? '/hash/' + hash : '';
+  const pathChunk = path ? '/path/' + path : '';
+  return `/${repositoryId}${modeChunk}${hashChunk}${pathChunk}`;
 };
 
 export const getCrumbs = ({ repositoryId, hash, path }: URLParams): Array<Crumb> => {
@@ -58,8 +59,8 @@ const Breadcrumbs = (): React.ReactElement => {
   const urlParams = useParams();
   return (
     <Breadcrumb>
-      {getCrumbs(urlParams).map((crumb, index) => (
-        <Breadcrumb.Item key={index} href={crumb.href}>
+      {getCrumbs(urlParams).map((crumb, index, array) => (
+        <Breadcrumb.Item key={index} href={crumb.href} active={index === array.length - 1}>
           {crumb.name}
         </Breadcrumb.Item>
       ))}
