@@ -1,7 +1,8 @@
 import { resolve } from 'path';
 import * as cors from 'cors';
 import * as express from 'express';
-import { Request, Response } from 'express';
+import { Express, Request, Response } from 'express';
+import { random } from 'lodash';
 
 import { getAllRepositories, getBlobContentPromise, getFilesTreeInfo, GetBlobContentPromiseParams } from './api';
 
@@ -17,7 +18,7 @@ const treeHandler = (root: string) => {
   };
 };
 
-export function getServer(root: string) {
+export function getServer(root: string): Express {
   const app = express();
   app.use(express.json());
   app.use(cors());
@@ -53,6 +54,24 @@ export function getServer(root: string) {
       res.send(content);
     })
   );
+
+  const getBranchesPath = '/api/branches/:repositoryId';
+  app.get(getBranchesPath, (req, res) => {
+    // TODO добавить получение веток у указанного проекта
+    const getRandomString = (length: number): string => {
+      const alphabet = 'qwertyuiopasdfghjklzxcvbnm';
+      const res = [];
+      for (let i = 0; i < length; i++) {
+        res.push(alphabet[random(alphabet.length)]);
+      }
+      return res.join('');
+    };
+    const branches = [];
+    for (let i = 0; i < 4; i++) {
+      branches.push(getRandomString(5));
+    }
+    res.send(branches);
+  });
 
   return app;
 }

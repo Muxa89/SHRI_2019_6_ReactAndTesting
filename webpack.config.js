@@ -63,6 +63,9 @@ module.exports = {
     port: 8000,
     historyApiFallback: {
       disableDotRule: true
+    },
+    proxy: {
+      '/api': 'http://localhost:3000/'
     }
   },
   devtool: 'inline-source-map',
