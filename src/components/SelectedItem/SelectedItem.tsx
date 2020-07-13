@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { URLParams } from 'src/interfaces/URLParams';
 import { last } from 'lodash';
+import './SelectedItem.sass';
 
 const getSelectedItemName = (): string => {
   const { repositoryId, path }: URLParams = useParams();

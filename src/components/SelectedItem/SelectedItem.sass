@@ -1,0 +1,10 @@
+@import ../constants
+
+.SelectedItem
+  font:
+    family: 'PT Sans'
+    weight: bold
+    @if $screen-width == 1440px
+      size: 24px
+    @else if $screen-width == 360px
+      size: 20px
