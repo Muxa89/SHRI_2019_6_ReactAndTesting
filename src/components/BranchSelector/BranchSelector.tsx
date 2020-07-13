@@ -5,6 +5,7 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import './BranchSelector.sass';
 import { URLParams } from 'src/interfaces/URLParams';
+import { getHref } from 'src/util/getHref';
 
 const fetchBranches = async (repositoryId: string | undefined): Promise<string[]> => {
   if (!repositoryId) {
@@ -17,7 +18,7 @@ const fetchBranches = async (repositoryId: string | undefined): Promise<string[]
 
 const BranchSelector = (): React.ReactElement => {
   const [branches, setBranches] = useState<string[]>([]);
-  const { repositoryId, hash }: URLParams = useParams();
+  const { repositoryId, hash, path, mode }: URLParams = useParams();
   return (
     // TODO добавить фильтр веток по имени
     <DropdownButton
@@ -30,8 +31,9 @@ const BranchSelector = (): React.ReactElement => {
       }}
     >
       {branches.map(item => (
-        // TODO добавить ссылки на которые будет переходить приложение при нажатии на элемент списка
-        <Dropdown.Item key={item}>{item}</Dropdown.Item>
+        <Dropdown.Item key={item} href={getHref({ repositoryId, mode, hash: item, path })}>
+          {item}
+        </Dropdown.Item>
       ))}
     </DropdownButton>
   );

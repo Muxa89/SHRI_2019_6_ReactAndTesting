@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import './Breadcrumbs.sass';
 import { URLParams } from 'src/interfaces/URLParams';
+import { getHref } from 'src/util/getHref';
 
 export enum CrumbType {
   REPO = 'REPO',
@@ -15,13 +16,6 @@ interface Crumb {
   type: CrumbType;
   href: string;
 }
-
-export const getHref = ({ repositoryId, mode, hash, path }: URLParams): string => {
-  const modeChunk = hash || path || mode ? (mode === undefined ? '/tree' : '') : '';
-  const hashChunk = hash ? '/hash/' + hash : '';
-  const pathChunk = path ? '/path/' + path : '';
-  return `/${repositoryId}${modeChunk}${hashChunk}${pathChunk}`;
-};
 
 export const getCrumbs = ({ repositoryId, hash, path }: URLParams): Array<Crumb> => {
   const res = [];
