@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { slice } from 'lodash';
 import { useParams } from 'react-router-dom';
-
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
-
 import './Breadcrumbs.sass';
 import { URLParams } from 'src/interfaces/URLParams';
 
