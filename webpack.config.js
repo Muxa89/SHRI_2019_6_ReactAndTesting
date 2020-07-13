@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const webpack = require('webpack');
 
@@ -45,7 +46,14 @@ module.exports = {
       }
     ]
   },
-  resolve: { extensions: ['*', '.js', '.jsx', '.ts', '.tsx'] },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+    // Alias setting is needed to enable absolute path imports
+    alias: {
+      root: __dirname,
+      src: path.resolve(__dirname, 'src')
+    }
+  },
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'js/bundle.js'
