@@ -10,7 +10,8 @@ import {
   GetBlobContentPromiseParams,
   getBranches,
   getFilesTreeInfo,
-  getRepositories
+  getRepositories,
+  getCommits
 } from './api';
 import ICommitInfo from '../interfaces/ICommitInfo';
 
@@ -71,13 +72,10 @@ export function getServer(root: string): Express {
     res.send(await getRepositories(resolve(root)));
   });
 
-  app.get(api.lastCommit.path, (req, res) => {
-    const response: ICommitInfo = {
-      hash: '123',
-      time: Date.now(),
-      author: '444'
-    };
-    res.send(response);
+  app.get(api.lastCommit.path, async (req, res) => {
+    const { repositoryId, branchId } = req.params;
+    const commits = await getCommits(resolve(root, repositoryId), branchId, 1);
+    res.send(commits[0]);
   });
 
   return app;

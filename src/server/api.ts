@@ -2,6 +2,8 @@ import * as fs from 'fs';
 import { resolve } from 'path';
 import * as childProcess from 'child_process';
 import { promisify } from 'util';
+import ICommitInfo from 'src/interfaces/ICommitInfo';
+import moment = require('moment');
 
 const execFile = promisify(childProcess.execFile);
 
@@ -238,6 +240,32 @@ export const getRepositories = async (rootFolder: string): Promise<string[]> => 
   return repositories;
 };
 
+export const getCommits = async (folder: string, branch: string, limit: number): Promise<ICommitInfo[]> => {
+  const output = await executeGitCommand(folder, [
+    'log',
+    branch,
+    '--pretty=format:"%h|%an|%at"',
+    '-n',
+    limit.toString()
+  ]);
+
+  // TODO добавить обработку
+  if (output.length === 0) {
+    return [];
+  }
+
+  return output
+    .map(line => line.replace(/[\s"]/g, ''))
+    .map(line => line.split('|'))
+    .map(
+      ([hash, author, time]): ICommitInfo => ({
+        hash,
+        time: moment(+time).valueOf() * 1000,
+        author
+      })
+    );
+};
+
 module.exports = {
   getAllRepositories,
   getBlobContentPromise,
@@ -246,5 +274,6 @@ module.exports = {
   getFilesTreeInfo,
   getGitDir,
   getBranches,
-  getRepositories
+  getRepositories,
+  getCommits
 };
