@@ -189,15 +189,19 @@ export const getBlobContentPromise = ({ folder, hash, blobPath }: GetBlobContent
   );
 };
 
-const executeGitCommand = async (folder: string, args: string[]): Promise<string[]> => {
-  const gitDir = await getGitDir(folder);
+const executeCommand = (command: string, args: string[]): Promise<string[]> => {
+  // TODO add error handler
   return new Promise(res => {
-    // TODO add error handler
     const output: string[] = [];
-    const child = childProcess.spawn('git', ['--git-dir', `${resolve(folder, gitDir)}`, ...args]);
+    const child = childProcess.spawn(command, args);
     child.stdout.on('data', data => output.push(data.toString()));
     child.stdout.on('close', () => res(output));
   });
+};
+
+const executeGitCommand = async (folder: string, args: string[]): Promise<string[]> => {
+  const gitDir = await getGitDir(folder);
+  return await executeCommand('git', ['--git-dir', `${resolve(folder, gitDir)}`, ...args]);
 };
 
 export const getBranches = async (folder: string): Promise<string[]> => {
@@ -209,8 +213,29 @@ export const getBranches = async (folder: string): Promise<string[]> => {
     .filter(br => br !== '');
 };
 
+const getGitDirNew = async (folder: string): Promise<string | null> => {
+  try {
+    const output = await executeCommand('git', ['-C', folder, 'rev-parse', '--git-dir']);
+    return output[0]?.replace(/\s/g, '');
+  } catch (err) {
+    return null;
+  }
+};
+
 export const getRepositories = async (rootFolder: string): Promise<string[]> => {
-  return ['123', '223'];
+  const files = await fs.promises.readdir(rootFolder, { withFileTypes: true });
+  const repositories: string[] = [];
+  await Promise.all(
+    files
+      .filter(file => file.isDirectory())
+      .map(async folder => {
+        const gitDir = await getGitDirNew(resolve(rootFolder, folder.name));
+        if (gitDir) {
+          repositories.push(folder.name);
+        }
+      })
+  );
+  return repositories;
 };
 
 module.exports = {
