@@ -43,9 +43,11 @@ const BranchSelector = (): React.ReactElement => {
       id='branchSelector'
       className='BranchSelector'
       title={hash || 'master'}
-      onClick={async () => {
-        setBranches([]);
-        setBranches(await fetchBranches(repositoryId));
+      onToggle={async (isOpen: boolean) => {
+        if (isOpen) {
+          setBranches([]);
+          setBranches(await fetchBranches(repositoryId));
+        }
       }}
     >
       <BranchNameFilter filter={branchNameFilter} setFilter={setBranchNameFilter} />
