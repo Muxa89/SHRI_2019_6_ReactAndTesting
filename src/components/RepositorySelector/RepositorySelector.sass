@@ -1,11 +1,13 @@
 @import ../constants
   
 .RepositorySelector
+  display: flex
+  align-items: center
+  margin-bottom: 1rem
   height: 100%
-  line-height: 18px
   font:
     family: 'PT Sans'
-    size: 16px
+    size: 1.2rem
   
   &-Text
     box-sizing: border-box
@@ -22,6 +24,7 @@
 
   &-Repository
     font-weight: bold
+    margin-right: 1rem
 
   &-Name
     @if $screen-width == 1440px
@@ -34,5 +37,9 @@
       margin-top: -3px
     @else if $screen-width == 360px
       margin-top: 3px
+
+  & .spinner-border
+    position: relative
+    left: calc(50% - 1rem)
 
 

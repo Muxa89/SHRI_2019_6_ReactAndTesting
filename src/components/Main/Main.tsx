@@ -6,16 +6,17 @@ import ItemAndBranchContainer from '../ItemAndBranchContainer/ItemAndBranchConta
 import LastCommitInfo from '../LastCommitInfo/LastCommitInfo';
 import ViewSelector from '../ViewSelector/ViewSelector';
 import InfoTable from '../InfoTable/InfoTable';
+import RepositorySelector from 'src/components/RepositorySelector/RepositorySelector';
 import DetailPanel from '../DetailPanel/DetailPanel';
 
 import { blobPath, treeModePath } from '../../util/constants';
-
 import './Main.sass';
 
 const Main = (): React.ReactElement => {
   return (
     <div className='Main'>
       <Route path={[...treeModePath, blobPath]}>
+        <RepositorySelector />
         <Breadcrumbs />
         <ItemAndBranchContainer />
         <LastCommitInfo />
