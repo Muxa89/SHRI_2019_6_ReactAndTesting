@@ -8,7 +8,7 @@ import 'src/components/BranchSelector/BranchSelector.sass';
 import { getHref } from 'src/util/getHref';
 import { includes } from 'lodash';
 import Form from 'react-bootstrap/Form';
-import { URLParams } from '../../interfaces/URLParams';
+import IURLParams from 'src/interfaces/IURLParams';
 import { api } from 'src/util/api';
 
 const fetchBranches = async (repositoryId: string | undefined): Promise<string[]> => {
@@ -60,7 +60,7 @@ const DropdownItems = ({
   }
 
   const [nameFilter, setNameFilter] = useState<string>('');
-  const { repositoryId, mode, hash, path }: URLParams = useParams();
+  const { repositoryId, mode, hash, path }: IURLParams = useParams();
   return (
     <>
       <BranchNameFilter filter={nameFilter} setFilter={setNameFilter} />
@@ -83,7 +83,7 @@ const DropdownItems = ({
 const BranchSelector = (): React.ReactElement => {
   const [branches, setBranches] = useState<string[]>([]);
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
-  const { repositoryId, hash }: URLParams = useParams();
+  const { repositoryId, hash }: IURLParams = useParams();
 
   // TODO fetch default branch name if no hash provided in URL
   return (

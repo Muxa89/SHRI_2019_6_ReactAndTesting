@@ -12,6 +12,7 @@ import {
   getFilesTreeInfo,
   getRepositories
 } from './api';
+import ICommitInfo from '../interfaces/ICommitInfo';
 
 const treeHandler = (root: string) => {
   return (req: Request, res: Response) => {
@@ -68,6 +69,15 @@ export function getServer(root: string): Express {
 
   app.get(api.repositories.path, async (req, res) => {
     res.send(await getRepositories(resolve(root)));
+  });
+
+  app.get(api.lastCommit.path, (req, res) => {
+    const response: ICommitInfo = {
+      hash: '123',
+      time: Date.now(),
+      author: '444'
+    };
+    res.send(response);
   });
 
   return app;

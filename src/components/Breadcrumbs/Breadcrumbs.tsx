@@ -2,8 +2,8 @@ import * as React from 'react';
 import { slice } from 'lodash';
 import { useParams } from 'react-router-dom';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
-import './Breadcrumbs.sass';
-import { URLParams } from 'src/interfaces/URLParams';
+import 'src/components/Breadcrumbs/Breadcrumbs.sass';
+import IURLParams from 'src/interfaces/IURLParams';
 import { getHref } from 'src/util/getHref';
 
 export enum CrumbType {
@@ -17,7 +17,7 @@ interface Crumb {
   href: string;
 }
 
-export const getCrumbs = ({ repositoryId, hash, path }: URLParams): Array<Crumb> => {
+export const getCrumbs = ({ repositoryId, hash, path }: IURLParams): Array<Crumb> => {
   const res = [];
 
   if (repositoryId) {

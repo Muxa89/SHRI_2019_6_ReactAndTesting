@@ -9,5 +9,6 @@ function addApi<T extends Record<string, unknown>>(path: string) {
 
 export const api = {
   repositories: addApi('/api/repositories'),
-  branches: addApi<{ repositoryId: string }>('/api/branches/:repositoryId')
+  branches: addApi<{ repositoryId: string }>('/api/branches/:repositoryId'),
+  lastCommit: addApi<{ repositoryId: string; branchId: string }>('/api/lastCommit/:repositoryId/:branchId')
 };

@@ -1,4 +1,4 @@
-export interface URLParams {
+export default interface IURLParams {
   repositoryId?: string;
   path?: string;
   hash?: string;

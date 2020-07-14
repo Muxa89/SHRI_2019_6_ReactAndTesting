@@ -1,14 +1,14 @@
 import * as React from 'react';
+import { useState } from 'react';
 import 'src/components/Selector/Selector.sass';
 import 'src/components/RepositorySelector/RepositorySelector.sass';
-import { useState } from 'react';
-import { URLParams } from '../../interfaces/URLParams';
+import IURLParams from 'src/interfaces/IURLParams';
 import { useParams } from 'react-router-dom';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Spinner from 'react-bootstrap/Spinner';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { includes } from 'lodash';
-import { getHref } from '../../util/getHref';
+import { getHref } from 'src/util/getHref';
 import Form from 'react-bootstrap/Form';
 import { api } from 'src/util/api';
 
@@ -57,7 +57,7 @@ const DropdownItems = ({
   }
 
   const [nameFilter, setNameFilter] = useState<string>('');
-  const { repositoryId }: URLParams = useParams();
+  const { repositoryId }: IURLParams = useParams();
   return (
     <>
       <RepositoryNameFilter filter={nameFilter} setFilter={setNameFilter} />
@@ -80,7 +80,7 @@ const DropdownItems = ({
 const RepositorySelector = (): React.ReactElement => {
   const [repositories, setRepositories] = useState<string[]>([]);
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
-  const { repositoryId }: URLParams = useParams();
+  const { repositoryId }: IURLParams = useParams();
   return (
     <div className='RepositorySelector Header-RepositorySelector Selector'>
       <span className='RepositorySelector-Repository'>Repository</span>

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import { URLParams } from 'src/interfaces/URLParams';
+import IURLParams from 'src/interfaces/IURLParams';
 import { last } from 'lodash';
-import './SelectedItem.sass';
+import 'src/components/SelectedItem/SelectedItem.sass';
 
 const getSelectedItemName = (): string => {
-  const { repositoryId, path }: URLParams = useParams();
+  const { repositoryId, path }: IURLParams = useParams();
 
   if (path) {
     const activeItem = last(path.split('/'));

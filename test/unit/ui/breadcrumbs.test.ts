@@ -1,5 +1,5 @@
 import { CrumbType, getCrumbs } from 'src/components/Breadcrumbs/Breadcrumbs';
-import { URLParams } from 'src/interfaces/URLParams';
+import IURLParams from 'src/interfaces/IURLParams';
 import { getHref } from 'src/util/getHref';
 
 describe('Tests for breadcrumbs href creation', () => {
@@ -21,7 +21,7 @@ describe('Tests for breadcrumbs href creation', () => {
   });
 
   test('get crumbs test', () => {
-    const params: URLParams = {
+    const params: IURLParams = {
       repositoryId: 'repo',
       hash: 'qqqq',
       path: 'some/folder/path'
