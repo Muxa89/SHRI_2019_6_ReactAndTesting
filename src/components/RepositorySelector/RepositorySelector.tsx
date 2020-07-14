@@ -63,9 +63,13 @@ const DropdownItems = ({
       <RepositoryNameFilter filter={nameFilter} setFilter={setNameFilter} />
       <Dropdown.Divider />
       {repositories
-        .filter(repositoryName => includes(repositoryName, nameFilter))
+        .filter(repositoryName => includes(repositoryName.toLowerCase(), nameFilter.toLowerCase()))
         .map(repositoryName => (
-          <Dropdown.Item key={repositoryName} active={repositoryName === repositoryId} href={getHref({ repositoryId })}>
+          <Dropdown.Item
+            key={repositoryName}
+            active={repositoryName === repositoryId}
+            href={getHref({ repositoryId: repositoryName })}
+          >
             {repositoryName}
           </Dropdown.Item>
         ))}

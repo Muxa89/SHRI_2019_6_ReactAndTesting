@@ -66,7 +66,7 @@ const DropdownItems = ({
       <BranchNameFilter filter={nameFilter} setFilter={setNameFilter} />
       <Dropdown.Divider />
       {branches
-        .filter(branchName => includes(branchName, nameFilter))
+        .filter(branchName => includes(branchName.toLowerCase(), nameFilter.toLowerCase()))
         .map(branchName => (
           <Dropdown.Item
             key={branchName}
