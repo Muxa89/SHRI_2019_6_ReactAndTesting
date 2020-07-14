@@ -2,9 +2,14 @@ import { resolve } from 'path';
 import * as cors from 'cors';
 import * as express from 'express';
 import { Express, Request, Response } from 'express';
-import { random } from 'lodash';
 
-import { getAllRepositories, getBlobContentPromise, getFilesTreeInfo, GetBlobContentPromiseParams } from './api';
+import {
+  getAllRepositories,
+  getBlobContentPromise,
+  getFilesTreeInfo,
+  GetBlobContentPromiseParams,
+  getBranches
+} from './api';
 
 const treeHandler = (root: string) => {
   return (req: Request, res: Response) => {
@@ -56,20 +61,8 @@ export function getServer(root: string): Express {
   );
 
   const getBranchesPath = '/api/branches/:repositoryId';
-  app.get(getBranchesPath, (req, res) => {
-    // TODO добавить получение веток у указанного проекта
-    const getRandomString = (length: number): string => {
-      const alphabet = 'qwertyuiopasdfghjklzxcvbnm';
-      const res = [];
-      for (let i = 0; i < length; i++) {
-        res.push(alphabet[random(alphabet.length)]);
-      }
-      return res.join('');
-    };
-    const branches = [];
-    for (let i = 0; i < 4; i++) {
-      branches.push(getRandomString(5));
-    }
+  app.get(getBranchesPath, async (req, res) => {
+    const branches = await getBranches(resolve(root, req.params.repositoryId));
     res.send(branches);
   });
 

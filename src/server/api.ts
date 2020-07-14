@@ -189,11 +189,32 @@ export const getBlobContentPromise = ({ folder, hash, blobPath }: GetBlobContent
   );
 };
 
+const executeGitCommand = async (folder: string, args: string[]): Promise<string[]> => {
+  const gitDir = await getGitDir(folder);
+  return new Promise(res => {
+    // TODO add error handler
+    const output: string[] = [];
+    const child = childProcess.spawn('git', ['--git-dir', `${resolve(folder, gitDir)}`, ...args]);
+    child.stdout.on('data', data => output.push(data.toString()));
+    child.stdout.on('close', () => res(output));
+  });
+};
+
+export const getBranches = async (folder: string): Promise<string[]> => {
+  const branchesListOutput = await executeGitCommand(folder, ['branch', '--list']);
+  return branchesListOutput
+    .join(' ')
+    .split('\n')
+    .map(br => br.replace(/[\s*]/g, ''))
+    .filter(br => br !== '');
+};
+
 module.exports = {
   getAllRepositories,
   getBlobContentPromise,
   getFileInfo,
   getFilesTree,
   getFilesTreeInfo,
-  getGitDir
+  getGitDir,
+  getBranches
 };
