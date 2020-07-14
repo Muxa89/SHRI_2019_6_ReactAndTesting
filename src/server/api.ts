@@ -209,6 +209,10 @@ export const getBranches = async (folder: string): Promise<string[]> => {
     .filter(br => br !== '');
 };
 
+export const getRepositories = async (rootFolder: string): Promise<string[]> => {
+  return ['123', '223'];
+};
+
 module.exports = {
   getAllRepositories,
   getBlobContentPromise,
@@ -216,5 +220,6 @@ module.exports = {
   getFilesTree,
   getFilesTreeInfo,
   getGitDir,
-  getBranches
+  getBranches,
+  getRepositories
 };

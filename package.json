@@ -62,6 +62,7 @@
     "express": "^4.17.1",
     "file-loader": "^4.2.0",
     "hermione-run-servers": "git+https://github.com/Muxa89/hermione-run-servers.git",
+    "path-to-regexp": "^6.1.0",
     "prismjs": "^1.17.1",
     "react": "^16.10.1",
     "react-bootstrap": "^1.0.1",

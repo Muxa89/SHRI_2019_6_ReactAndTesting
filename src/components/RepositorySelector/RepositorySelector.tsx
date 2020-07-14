@@ -10,15 +10,16 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { includes } from 'lodash';
 import { getHref } from '../../util/getHref';
 import Form from 'react-bootstrap/Form';
+import { api } from 'src/util/api';
 
 const fetchRepositories = async (): Promise<string[]> => {
-  const response = await fetch(`/api/repositories`);
+  const response = await fetch(api.repositories.withParams());
   return response.json();
 };
 
 const onToggleHandler = (
   repositoryId: string | undefined,
-  setRepositories: (branches: string[]) => void,
+  setRepositories: (repositories: string[]) => void,
   setSpinnerVisible: (isVisible: boolean) => void
 ) => async (isOpen: boolean) => {
   if (isOpen) {

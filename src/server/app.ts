@@ -2,13 +2,15 @@ import { resolve } from 'path';
 import * as cors from 'cors';
 import * as express from 'express';
 import { Express, Request, Response } from 'express';
+import { api } from '../util/api';
 
 import {
   getAllRepositories,
   getBlobContentPromise,
-  getFilesTreeInfo,
   GetBlobContentPromiseParams,
-  getBranches
+  getBranches,
+  getFilesTreeInfo,
+  getRepositories
 } from './api';
 
 const treeHandler = (root: string) => {
@@ -60,10 +62,12 @@ export function getServer(root: string): Express {
     })
   );
 
-  const getBranchesPath = '/api/branches/:repositoryId';
-  app.get(getBranchesPath, async (req, res) => {
-    const branches = await getBranches(resolve(root, req.params.repositoryId));
-    res.send(branches);
+  app.get(api.branches.path, async (req, res) => {
+    res.send(await getBranches(resolve(root, req.params.repositoryId)));
+  });
+
+  app.get(api.repositories.path, async (req, res) => {
+    res.send(await getRepositories(resolve(root)));
   });
 
   return app;

@@ -9,13 +9,14 @@ import { getHref } from 'src/util/getHref';
 import { includes } from 'lodash';
 import Form from 'react-bootstrap/Form';
 import { URLParams } from '../../interfaces/URLParams';
+import { api } from 'src/util/api';
 
 const fetchBranches = async (repositoryId: string | undefined): Promise<string[]> => {
   if (!repositoryId) {
     return [];
   }
 
-  const response = await fetch(`/api/branches/${repositoryId}`);
+  const response = await fetch(api.branches.withParams({ repositoryId }));
   return response.json();
 };
 
