@@ -35,9 +35,11 @@ const LastCommitInfo = (): React.ReactElement => {
       .then(commitInfo => setCommitInfo(commitInfo));
   }, [repositoryId, hash]);
 
+  // TODO добавить ссылку на комит
+  // TODO добавить тултип для даты
   return (
     <div className='LastCommitInfo'>
-      Last commit <span className='Link'>{commitInfo?.hash} </span>on{' '}
+      Last commit <span className='LastCommitInfo-Hash'>{commitInfo?.hash} </span>on{' '}
       <span className='LastCommitInfo-Time' title={moment(commitInfo?.time).format(FULL_DATE_TIME_FORMAT)}>
         {getTimeString(commitInfo?.time)}{' '}
       </span>
