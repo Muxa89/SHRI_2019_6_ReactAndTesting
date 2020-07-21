@@ -10,13 +10,11 @@ import {
   getBlobContentPromise,
   GetBlobContentPromiseParams,
   getBranches,
-  getFilesTreeInfo,
-  getRepositories,
   getCommits,
-  getEntriesInPath,
-  getFiles
+  getEntriesWithInfo,
+  getFilesTreeInfo,
+  getRepositories
 } from './api';
-import ICommitInfo from '../interfaces/ICommitInfo';
 
 const treeHandler = (root: string) => {
   return (req: Request, res: Response) => {
@@ -84,8 +82,7 @@ export function getServer(root: string): Express {
 
   app.get(api.tree.path, async (req, res) => {
     const { repository, hash, path } = req.params as typeof api.tree.params;
-    const files = await getFiles(resolve(root, repository), hash, path);
-    res.send(files);
+    res.send(await getEntriesWithInfo(resolve(root, repository), hash, path || ''));
   });
 
   return app;

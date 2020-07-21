@@ -16,7 +16,8 @@ export const api = {
   repositories: new Endpoint('/api/repositories'),
   branches: new Endpoint<{ repository: string }>('/api/repo/:repository/branches'),
   lastCommit: new Endpoint<{ repository: string; branch: string }>('/api/repo/:repository/branch/:branch/lastCommit'),
-  tree: new Endpoint<{ repository: string; hash: string; path: string }>(
-    '/api/repo/tree/:repository/hash/:hash/path/:path([^#\\?]+?)'
+  tree: new Endpoint<{ repository: string; hash: string; path?: string }>(
+    // used "{0,}" in path expression instead of "*" as recommended workaround to issue https://github.com/expressjs/express/issues/2495
+    '/api/repo/tree/:repository/hash/:hash/path/:path([^#\\?]{0,})'
   )
 };

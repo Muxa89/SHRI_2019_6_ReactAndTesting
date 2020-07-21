@@ -1,6 +1,6 @@
 import { IEntryType } from 'src/interfaces/IEntryType';
 
-export default interface IFileInfo {
+export default interface ITreeEntryInfo {
   type: IEntryType;
   name: string;
   hash: string;

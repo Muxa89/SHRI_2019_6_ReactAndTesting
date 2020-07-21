@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import * as childProcess from 'child_process';
 import { promisify } from 'util';
 import ICommitInfo from 'src/interfaces/ICommitInfo';
-import IFileInfo from 'src/interfaces/IFileInfo';
+import ITreeEntryInfo from 'src/interfaces/ITreeEntryInfo';
 import { IEntryType } from '../interfaces/IEntryType';
 import moment = require('moment');
 import { first } from 'lodash';
@@ -267,10 +267,10 @@ interface ITreeEntry {
   name: string;
 }
 
-export const getEntriesInPath = async (folder: string, hash: string, path: string): Promise<ITreeEntry[]> => {
+const getTreeEntries = async (directory: string, hash: string, path: string): Promise<ITreeEntry[]> => {
   const result: ITreeEntry[] = [];
 
-  const lsTreeOutput = await executeGitCommand(folder, ['ls-tree', `${hash}:${path}`]);
+  const lsTreeOutput = await executeGitCommand(directory, ['ls-tree', `${hash}:${path}`]);
 
   // "<mode> <type> <object>\t<file>", see https://git-scm.com/docs/git-ls-tree#_output_format
   const matcher = /(\w+) (\w+) (\w+)\t(.+)/;
@@ -279,11 +279,11 @@ export const getEntriesInPath = async (folder: string, hash: string, path: strin
     .join('\n')
     .split('\n')
     .map(line => line.match(matcher))
-    .forEach(obj => {
-      if (obj && obj[2] && obj[4]) {
+    .forEach(match => {
+      if (match && match[2] && match[4]) {
         result.push({
-          type: obj[2] === 'blob' ? IEntryType.FILE : IEntryType.FOLDER,
-          name: obj[4]
+          type: match[2] === 'blob' ? IEntryType.FILE : IEntryType.FOLDER,
+          name: match[4]
         });
       }
     });
@@ -291,7 +291,12 @@ export const getEntriesInPath = async (folder: string, hash: string, path: strin
   return result;
 };
 
-const getEntryInfo = async (folder: string, hash: string, path: string, entry: ITreeEntry): Promise<IFileInfo> => {
+const getTreeEntryInfo = async (
+  folder: string,
+  hash: string,
+  path: string,
+  entry: ITreeEntry
+): Promise<ITreeEntryInfo> => {
   const gitLogOutput = await executeGitCommand(folder, [
     'log',
     '--pretty=format:"%h||%s||%an||%at"',
@@ -321,9 +326,9 @@ const getEntryInfo = async (folder: string, hash: string, path: string, entry: I
   };
 };
 
-export const getFiles = async (folder: string, hash: string, path: string): Promise<IFileInfo[]> => {
-  const filesList = await getEntriesInPath(folder, hash, path);
-  return await Promise.all(filesList.map(async entry => await getEntryInfo(folder, hash, path, entry)));
+export const getEntriesWithInfo = async (directory: string, hash: string, path: string): Promise<ITreeEntryInfo[]> => {
+  const entries = await getTreeEntries(directory, hash, path);
+  return await Promise.all(entries.map(async entry => await getTreeEntryInfo(directory, hash, path, entry)));
 };
 
 module.exports = {
@@ -335,7 +340,5 @@ module.exports = {
   getGitDir,
   getBranches,
   getRepositories,
-  getCommits,
-  getFilesList: getEntriesInPath,
-  getFiles
+  getCommits
 };
