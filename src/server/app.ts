@@ -3,6 +3,7 @@ import * as cors from 'cors';
 import * as express from 'express';
 import { Express, Request, Response } from 'express';
 import { api } from '../util/api';
+import { first } from 'lodash';
 
 import {
   getAllRepositories,
@@ -11,7 +12,9 @@ import {
   getBranches,
   getFilesTreeInfo,
   getRepositories,
-  getCommits
+  getCommits,
+  getEntriesInPath,
+  getFiles
 } from './api';
 import ICommitInfo from '../interfaces/ICommitInfo';
 
@@ -65,7 +68,8 @@ export function getServer(root: string): Express {
   );
 
   app.get(api.branches.path, async (req, res) => {
-    res.send(await getBranches(resolve(root, req.params.repositoryId)));
+    const params = req.params as typeof api.branches.params;
+    res.send(await getBranches(resolve(root, params.repository)));
   });
 
   app.get(api.repositories.path, async (req, res) => {
@@ -73,9 +77,15 @@ export function getServer(root: string): Express {
   });
 
   app.get(api.lastCommit.path, async (req, res) => {
-    const { repositoryId, branchId } = req.params;
-    const commits = await getCommits(resolve(root, repositoryId), branchId, 1);
-    res.send(commits[0]);
+    const { repository, branch } = req.params as typeof api.lastCommit.params;
+    const commits = await getCommits(resolve(root, repository), branch, 1);
+    res.send(first(commits));
+  });
+
+  app.get(api.tree.path, async (req, res) => {
+    const { repository, hash, path } = req.params as typeof api.tree.params;
+    const files = await getFiles(resolve(root, repository), hash, path);
+    res.send(files);
   });
 
   return app;

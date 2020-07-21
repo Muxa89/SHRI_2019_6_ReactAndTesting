@@ -3,7 +3,10 @@ import { resolve } from 'path';
 import * as childProcess from 'child_process';
 import { promisify } from 'util';
 import ICommitInfo from 'src/interfaces/ICommitInfo';
+import IFileInfo from 'src/interfaces/IFileInfo';
+import { IEntryType } from '../interfaces/IEntryType';
 import moment = require('moment');
+import { first } from 'lodash';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -27,7 +30,6 @@ export const getAllRepositories = (root: string, callback: getAllRepositoriesCal
           .then(() => {
             res.push(folder);
           })
-          .catch(() => {})
           .finally(() => Promise.resolve())
       )
     ).then(() => {
@@ -224,30 +226,24 @@ const getGitDirNew = async (folder: string): Promise<string | null> => {
   }
 };
 
-export const getRepositories = async (rootFolder: string): Promise<string[]> => {
-  const files = await fs.promises.readdir(rootFolder, { withFileTypes: true });
+export const getRepositories = async (root: string): Promise<string[]> => {
+  const entries = await fs.promises.readdir(root, { withFileTypes: true });
   const repositories: string[] = [];
   await Promise.all(
-    files
-      .filter(file => file.isDirectory())
-      .map(async folder => {
-        const gitDir = await getGitDirNew(resolve(rootFolder, folder.name));
-        if (gitDir) {
-          repositories.push(folder.name);
+    entries
+      .filter(entry => entry.isDirectory())
+      .map(async directory => {
+        const directoryContainsGitDir = await getGitDirNew(resolve(root, directory.name));
+        if (directoryContainsGitDir) {
+          repositories.push(directory.name);
         }
       })
   );
   return repositories;
 };
 
-export const getCommits = async (folder: string, branch: string, limit: number): Promise<ICommitInfo[]> => {
-  const output = await executeGitCommand(folder, [
-    'log',
-    branch,
-    '--pretty=format:"%h|%an|%at"',
-    '-n',
-    limit.toString()
-  ]);
+export const getCommits = async (directory: string, branch: string, limit: number): Promise<ICommitInfo[]> => {
+  const output = await executeGitCommand(directory, ['log', branch, '--pretty=format:"%h|%an|%at"', '-n', limit + '']);
 
   // TODO добавить обработку
   if (output.length === 0) {
@@ -266,6 +262,70 @@ export const getCommits = async (folder: string, branch: string, limit: number):
     );
 };
 
+interface ITreeEntry {
+  type: IEntryType;
+  name: string;
+}
+
+export const getEntriesInPath = async (folder: string, hash: string, path: string): Promise<ITreeEntry[]> => {
+  const result: ITreeEntry[] = [];
+
+  const lsTreeOutput = await executeGitCommand(folder, ['ls-tree', `${hash}:${path}`]);
+
+  // "<mode> <type> <object>\t<file>", see https://git-scm.com/docs/git-ls-tree#_output_format
+  const matcher = /(\w+) (\w+) (\w+)\t(.+)/;
+
+  lsTreeOutput
+    .join('\n')
+    .split('\n')
+    .map(line => line.match(matcher))
+    .forEach(obj => {
+      if (obj && obj[2] && obj[4]) {
+        result.push({
+          type: obj[2] === 'blob' ? IEntryType.FILE : IEntryType.FOLDER,
+          name: obj[4]
+        });
+      }
+    });
+
+  return result;
+};
+
+const getEntryInfo = async (folder: string, hash: string, path: string, entry: ITreeEntry): Promise<IFileInfo> => {
+  const gitLogOutput = await executeGitCommand(folder, [
+    'log',
+    '--pretty=format:"%h||%s||%an||%at"',
+    '-n',
+    '1',
+    hash,
+    `${path}${path ? '/' : ''}${entry.name}`
+  ]);
+
+  const matcher = /"(.*)\|\|(.*)\|\|(.*)\|\|(.*)"/;
+
+  const outputMatch = first(gitLogOutput.map(line => line.match(matcher)).filter(match => !!match));
+
+  if (!outputMatch) {
+    throw new Error('unknown command output');
+  }
+
+  const [, commitHash, lastMessage, author, timestamp] = outputMatch;
+
+  return {
+    hash: commitHash,
+    lastMessage,
+    author,
+    timestamp: +timestamp,
+    type: entry.type,
+    name: entry.name
+  };
+};
+
+export const getFiles = async (folder: string, hash: string, path: string): Promise<IFileInfo[]> => {
+  const filesList = await getEntriesInPath(folder, hash, path);
+  return await Promise.all(filesList.map(async entry => await getEntryInfo(folder, hash, path, entry)));
+};
+
 module.exports = {
   getAllRepositories,
   getBlobContentPromise,
@@ -275,5 +335,7 @@ module.exports = {
   getGitDir,
   getBranches,
   getRepositories,
-  getCommits
+  getCommits,
+  getFilesList: getEntriesInPath,
+  getFiles
 };

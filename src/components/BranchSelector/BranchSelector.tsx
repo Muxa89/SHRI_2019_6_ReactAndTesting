@@ -16,7 +16,7 @@ const fetchBranches = async (repositoryId: string | undefined): Promise<string[]
     return [];
   }
 
-  const response = await fetch(api.branches.withParams({ repositoryId }));
+  const response = await fetch(api.branches.withParams({ repository: repositoryId }));
   return response.json();
 };
 

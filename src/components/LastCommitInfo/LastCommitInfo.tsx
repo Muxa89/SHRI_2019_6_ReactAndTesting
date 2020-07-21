@@ -30,7 +30,7 @@ const LastCommitInfo = (): React.ReactElement => {
 
   const [commitInfo, setCommitInfo] = useState<ICommitInfo | null>(null);
   useEffect(() => {
-    fetch(api.lastCommit.withParams({ repositoryId, branchId: hash }))
+    fetch(api.lastCommit.withParams({ repository: repositoryId, branch: hash }))
       .then(response => response.json())
       .then(commitInfo => setCommitInfo(commitInfo));
   }, [repositoryId, hash]);
