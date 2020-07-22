@@ -8,7 +8,7 @@ import { getHref } from 'src/util/getHref';
 const ViewSelector = (): React.ReactElement => {
   const { repositoryId, mode, hash, path }: IURLParams = useParams();
   return (
-    <Nav variant='tabs'>
+    <Nav variant='tabs' className='ViewSelector'>
       <Nav.Item>
         <Nav.Link href={getHref({ repositoryId, mode: 'tree', hash, path })} active={mode === 'tree'}>
           FILES
