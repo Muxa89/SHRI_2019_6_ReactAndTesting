@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import './InfoTable.sass';
 import '../Link/Link.sass';
 import '../Commiter/Commiter.sass';
@@ -12,6 +12,7 @@ import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util
 import { orderBy } from 'lodash';
 import { getDefaultHash } from 'src/util/defaultHash';
 import { IEntryType } from 'src/interfaces/IEntryType';
+import { getHref } from 'src/util/getHref';
 import moment = require('moment');
 
 enum TableState {
@@ -32,6 +33,9 @@ enum SortOrder {
   ASC = 'asc',
   DESC = 'desc'
 }
+
+const FOLDER_ICON = '/images/FolderIcon.svg';
+const FILE_ICON = '/images/FileIcon.svg';
 
 const getSortParams = (by: TableColumn, order: SortOrder): { iteratee: string[]; orders: SortOrder[] } => {
   switch (by) {
@@ -55,6 +59,11 @@ const getSortParams = (by: TableColumn, order: SortOrder): { iteratee: string[];
 const sortTableItems = (items: ITreeEntryInfo[], by: TableColumn, order: SortOrder): ITreeEntryInfo[] => {
   const { iteratee, orders } = getSortParams(by, order);
   return orderBy(items, iteratee, orders);
+};
+
+const getParent = (path: string): string => {
+  const pathParts = path.split('/');
+  return pathParts.slice(0, pathParts.length - 1).join('/');
 };
 
 const InfoTable = (): React.ReactElement => {
@@ -93,8 +102,6 @@ const InfoTable = (): React.ReactElement => {
 
   // TODO add spinner on file loading
   // TODO add sort column indicator
-  // TODO add goto parent item
-  // TODO add entry name click handler
   return (
     <Table>
       <thead>
@@ -108,24 +115,46 @@ const InfoTable = (): React.ReactElement => {
         </tr>
       </thead>
       <tbody>
-        {items.map(item => (
-          <tr key={item.name}>
+        {path && tableState === TableState.READY && (
+          <tr>
             <td>
-              {item.type === IEntryType.FILE ? (
-                <img src={'/images/FileIcon.svg'} alt={'file'} />
-              ) : (
-                <img src={'/images/FolderIcon.svg'} alt={'folder'} />
-              )}
+              <img src={FOLDER_ICON} alt={'folder'} />
             </td>
-            <td>{item.name}</td>
-            <td>{item.lastCommit.hash}</td>
-            <td>{item.lastCommit.message}</td>
-            <td>{item.lastCommit.author}</td>
-            <td title={moment(item.lastCommit.timestamp).format(FULL_DATE_TIME_FORMAT)}>
-              {moment(item.lastCommit.timestamp).format(HUMAN_READABLE_DATE_TIME_FORMAT)}
+            <td>
+              <Link to={getHref({ repositoryId, mode: 'tree', hash, path: getParent(path) })}>..</Link>
             </td>
           </tr>
-        ))}
+        )}
+        {tableState === TableState.READY &&
+          items.map(item => (
+            <tr key={item.name}>
+              <td>
+                {item.type === IEntryType.FILE ? (
+                  <img src={FILE_ICON} alt={'file'} />
+                ) : (
+                  <img src={FOLDER_ICON} alt={'folder'} />
+                )}
+              </td>
+              <td>
+                <Link
+                  to={getHref({
+                    repositoryId,
+                    mode: item.type === IEntryType.FILE ? 'blob' : 'tree',
+                    hash,
+                    path: `${path || ''}${path ? '/' : ''}${item.name}`
+                  })}
+                >
+                  {item.name}
+                </Link>
+              </td>
+              <td>{item.lastCommit.hash}</td>
+              <td>{item.lastCommit.message}</td>
+              <td>{item.lastCommit.author}</td>
+              <td title={moment(item.lastCommit.timestamp).format(FULL_DATE_TIME_FORMAT)}>
+                {moment(item.lastCommit.timestamp).format(HUMAN_READABLE_DATE_TIME_FORMAT)}
+              </td>
+            </tr>
+          ))}
       </tbody>
     </Table>
   );
