@@ -103,7 +103,15 @@ const InfoTable = (): React.ReactElement => {
   // TODO add spinner on file loading
   // TODO add sort column indicator
   return (
-    <Table>
+    <Table className='InfoTable'>
+      <colgroup>
+        <col className='InfoTable-Type' />
+        <col className='InfoTable-Name' />
+        <col className='InfoTable-LastCommit' />
+        <col className='InfoTable-CommitMessage' />
+        <col className='InfoTable-Author' />
+        <col className='InfoTable-Updated' />
+      </colgroup>
       <thead>
         <tr>
           <th>#</th>
@@ -121,7 +129,7 @@ const InfoTable = (): React.ReactElement => {
               <img src={FOLDER_ICON} alt={'folder'} />
             </td>
             <td>
-              <Link to={getHref({ repositoryId, mode: 'tree', hash, path: getParent(path) })}>..</Link>
+              <Link to={getHref({ repositoryId, mode: 'tree', hash, path: getParent(path) })}>../</Link>
             </td>
           </tr>
         )}
