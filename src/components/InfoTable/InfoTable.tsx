@@ -8,6 +8,8 @@ import IURLParams from 'src/interfaces/IURLParams';
 import { api } from 'src/util/api';
 import Table from 'react-bootstrap/Table';
 import ITreeEntryInfo from 'src/interfaces/ITreeEntryInfo';
+import moment = require('moment');
+import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from '../../util/constants';
 
 enum InfoTableStates {
   READY = 'ready',
@@ -47,10 +49,12 @@ const InfoTable = (): React.ReactElement => {
           <tr key={item.name}>
             <td>0</td>
             <td>{item.name}</td>
-            <td>{item.hash}</td>
-            <td>{item.lastMessage}</td>
-            <td>{item.author}</td>
-            <td>{item.timestamp}</td>
+            <td>{item.lastCommit.hash}</td>
+            <td>{item.lastCommit.message}</td>
+            <td>{item.lastCommit.author}</td>
+            <td title={moment(item.lastCommit.timestamp).format(FULL_DATE_TIME_FORMAT)}>
+              {moment(item.lastCommit.timestamp).format(HUMAN_READABLE_DATE_TIME_FORMAT)}
+            </td>
           </tr>
         ))}
       </tbody>

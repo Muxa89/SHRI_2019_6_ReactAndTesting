@@ -242,24 +242,36 @@ export const getRepositories = async (root: string): Promise<string[]> => {
   return repositories;
 };
 
-export const getCommits = async (directory: string, branch: string, limit: number): Promise<ICommitInfo[]> => {
-  const output = await executeGitCommand(directory, ['log', branch, '--pretty=format:"%h|%an|%at"', '-n', limit + '']);
-
-  // TODO добавить обработку
-  if (output.length === 0) {
-    return [];
+export const getCommits = async (
+  directory: string,
+  hash: string,
+  limit: number,
+  path?: string
+): Promise<ICommitInfo[]> => {
+  const args = ['log', '--pretty=format:"%h||%an||%at||%s"', '-n', `${limit}`, hash];
+  if (path) {
+    args.push(path);
   }
+  const gitLogOutput = await executeGitCommand(directory, args);
+  const matcher = /"(.*)\|\|(.*)\|\|(.*)\|\|(.*)"/;
+  const result: ICommitInfo[] = [];
 
-  return output
-    .map(line => line.replace(/[\s"]/g, ''))
-    .map(line => line.split('|'))
-    .map(
-      ([hash, author, time]): ICommitInfo => ({
+  gitLogOutput
+    .map(line => line.match(matcher))
+    .forEach(match => {
+      if (!match) {
+        return;
+      }
+      const [, hash, author, timestamp, message] = match;
+      result.push({
         hash,
-        time: moment(+time).valueOf() * 1000,
-        author
-      })
-    );
+        author,
+        timestamp: moment(+timestamp).valueOf() * 1000,
+        message
+      });
+    });
+
+  return result;
 };
 
 interface ITreeEntry {
@@ -291,44 +303,24 @@ const getTreeEntries = async (directory: string, hash: string, path: string): Pr
   return result;
 };
 
-const getTreeEntryInfo = async (
-  folder: string,
-  hash: string,
-  path: string,
-  entry: ITreeEntry
-): Promise<ITreeEntryInfo> => {
-  const gitLogOutput = await executeGitCommand(folder, [
-    'log',
-    '--pretty=format:"%h||%s||%an||%at"',
-    '-n',
-    '1',
-    hash,
-    `${path}${path ? '/' : ''}${entry.name}`
-  ]);
-
-  const matcher = /"(.*)\|\|(.*)\|\|(.*)\|\|(.*)"/;
-
-  const outputMatch = first(gitLogOutput.map(line => line.match(matcher)).filter(match => !!match));
-
-  if (!outputMatch) {
-    throw new Error('unknown command output');
-  }
-
-  const [, commitHash, lastMessage, author, timestamp] = outputMatch;
-
-  return {
-    hash: commitHash,
-    lastMessage,
-    author,
-    timestamp: +timestamp,
-    type: entry.type,
-    name: entry.name
-  };
-};
-
 export const getEntriesWithInfo = async (directory: string, hash: string, path: string): Promise<ITreeEntryInfo[]> => {
   const entries = await getTreeEntries(directory, hash, path);
-  return await Promise.all(entries.map(async entry => await getTreeEntryInfo(directory, hash, path, entry)));
+  return await Promise.all(
+    entries.map(async entry => {
+      const lastCommit = first(await getCommits(directory, hash, 1, `${path}${path ? '/' : ''}${entry.name}`));
+
+      if (!lastCommit) {
+        throw new Error('Could not receive information for last commit');
+      }
+
+      const result: ITreeEntryInfo = {
+        type: entry.type,
+        name: entry.name,
+        lastCommit
+      };
+      return result;
+    })
+  );
 };
 
 module.exports = {
@@ -340,5 +332,6 @@ module.exports = {
   getGitDir,
   getBranches,
   getRepositories,
-  getCommits
+  getCommits,
+  getEntriesWithInfo
 };

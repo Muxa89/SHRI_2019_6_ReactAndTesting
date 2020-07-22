@@ -7,10 +7,8 @@ import 'src/components/Commiter/Commiter.sass';
 import 'src/components/Link/Link.sass';
 import { api } from 'src/util/api';
 import ICommitInfo from 'src/interfaces/ICommitInfo';
+import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util/constants';
 import moment = require('moment');
-
-const FULL_DATE_TIME_FORMAT = 'DD.MM.YYYY HH:mm:ss';
-const HUMAN_READABLE_DATE_TIME_FORMAT = 'Do MMM YY HH:mm:ss';
 
 const getTimeString = (timestamp: number | undefined): string => {
   const date = moment(timestamp);
@@ -40,8 +38,8 @@ const LastCommitInfo = (): React.ReactElement => {
   return (
     <div className='LastCommitInfo'>
       Last commit <span className='LastCommitInfo-Hash'>{commitInfo?.hash} </span>on{' '}
-      <span className='LastCommitInfo-Time' title={moment(commitInfo?.time).format(FULL_DATE_TIME_FORMAT)}>
-        {getTimeString(commitInfo?.time)}{' '}
+      <span className='LastCommitInfo-Time' title={moment(commitInfo?.timestamp).format(FULL_DATE_TIME_FORMAT)}>
+        {getTimeString(commitInfo?.timestamp)}{' '}
       </span>
       by <span className='Committer'>{commitInfo?.author} </span>
     </div>

@@ -1,5 +1,6 @@
 export default interface ICommitInfo {
   hash: string;
-  time: number;
+  timestamp: number;
   author: string;
+  message: string;
 }
