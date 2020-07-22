@@ -8,13 +8,54 @@ import IURLParams from 'src/interfaces/IURLParams';
 import { api } from 'src/util/api';
 import Table from 'react-bootstrap/Table';
 import ITreeEntryInfo from 'src/interfaces/ITreeEntryInfo';
+import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util/constants';
+import { orderBy } from 'lodash';
+import { getDefaultHash } from 'src/util/defaultHash';
+import { IEntryType } from 'src/interfaces/IEntryType';
 import moment = require('moment');
-import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from '../../util/constants';
 
-enum InfoTableStates {
+enum TableState {
   READY = 'ready',
   LOADING = 'loading'
 }
+
+enum TableColumn {
+  TYPE = 'type',
+  NAME = 'name',
+  HASH = 'hash',
+  MESSAGE = 'message',
+  AUTHOR = 'author',
+  TIMESTAMP = 'timestamp'
+}
+
+enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc'
+}
+
+const getSortParams = (by: TableColumn, order: SortOrder): { iteratee: string[]; orders: SortOrder[] } => {
+  switch (by) {
+    case TableColumn.HASH:
+    case TableColumn.MESSAGE:
+    case TableColumn.AUTHOR:
+    case TableColumn.TIMESTAMP:
+      return {
+        iteratee: [`lastCommit.${by}`],
+        orders: [order]
+      };
+    default:
+    case TableColumn.NAME:
+      return {
+        iteratee: [TableColumn.TYPE, TableColumn.NAME],
+        orders: [SortOrder.DESC, order]
+      };
+  }
+};
+
+const sortTableItems = (items: ITreeEntryInfo[], by: TableColumn, order: SortOrder): ITreeEntryInfo[] => {
+  const { iteratee, orders } = getSortParams(by, order);
+  return orderBy(items, iteratee, orders);
+};
 
 const InfoTable = (): React.ReactElement => {
   const { repositoryId, hash, path } = useParams<IURLParams>();
@@ -22,32 +63,60 @@ const InfoTable = (): React.ReactElement => {
     return <></>;
   }
 
-  const [tableState, setTableState] = useState<InfoTableStates>(InfoTableStates.READY);
+  const [tableState, setTableState] = useState<TableState>(TableState.READY);
   const [items, setTableItems] = useState<ITreeEntryInfo[]>([]);
+  const [sortBy, setSortBy] = useState<TableColumn>(TableColumn.NAME);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.ASC);
+
+  const changeSortOrder = (by: TableColumn): (() => void) => () => {
+    let newSortOrder;
+
+    if (sortBy === by) {
+      newSortOrder = sortOrder === SortOrder.ASC ? SortOrder.DESC : SortOrder.ASC;
+    } else {
+      newSortOrder = SortOrder.ASC;
+    }
+
+    setSortBy(by);
+    setSortOrder(newSortOrder);
+    setTableItems(sortTableItems(items, by, newSortOrder));
+  };
+
   useEffect(() => {
-    setTableState(InfoTableStates.LOADING);
-    fetch(api.tree.withParams({ repository: repositoryId, hash: hash || 'master', path: path || '' }))
+    setTableState(TableState.LOADING);
+    fetch(api.tree.withParams({ repository: repositoryId, hash: getDefaultHash(), path: path || '' }))
       .then(result => result.json())
+      .then(items => sortTableItems(items, sortBy, sortOrder))
       .then(files => setTableItems(files))
-      .then(() => setTableState(InfoTableStates.READY));
+      .then(() => setTableState(TableState.READY));
   }, [repositoryId, hash, path]);
 
+  // TODO add spinner on file loading
+  // TODO add sort column indicator
+  // TODO add goto parent item
+  // TODO add entry name click handler
   return (
     <Table>
       <thead>
         <tr>
           <th>#</th>
-          <th>Name</th>
-          <th>Last commit</th>
-          <th>Commit message</th>
-          <th>Author</th>
-          <th>Updated</th>
+          <th onClick={changeSortOrder(TableColumn.NAME)}>Name</th>
+          <th onClick={changeSortOrder(TableColumn.HASH)}>Last commit</th>
+          <th onClick={changeSortOrder(TableColumn.MESSAGE)}>Commit message</th>
+          <th onClick={changeSortOrder(TableColumn.AUTHOR)}>Author</th>
+          <th onClick={changeSortOrder(TableColumn.TIMESTAMP)}>Updated</th>
         </tr>
       </thead>
       <tbody>
         {items.map(item => (
           <tr key={item.name}>
-            <td>0</td>
+            <td>
+              {item.type === IEntryType.FILE ? (
+                <img src={'/images/FileIcon.svg'} alt={'file'} />
+              ) : (
+                <img src={'/images/FolderIcon.svg'} alt={'folder'} />
+              )}
+            </td>
             <td>{item.name}</td>
             <td>{item.lastCommit.hash}</td>
             <td>{item.lastCommit.message}</td>
