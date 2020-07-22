@@ -47,7 +47,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: ['.tsx', '.ts', '.js', '*'],
     // Alias setting is needed to enable absolute path imports
     alias: {
       root: __dirname,

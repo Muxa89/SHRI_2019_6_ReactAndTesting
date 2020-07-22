@@ -14,6 +14,12 @@ import { getDefaultHash } from 'src/util/defaultHash';
 import { IEntryType } from 'src/interfaces/IEntryType';
 import { getHref } from 'src/util/getHref';
 import moment = require('moment');
+import * as FileIcon from 'src/components/InfoTable/FileIcon.svg';
+import * as FolderIcon from 'src/components/InfoTable/FolderIcon.svg';
+import * as CaretDown from 'src/components/InfoTable/CaretDown.svg';
+import * as CaretUp from 'src/components/InfoTable/CaretUp.svg';
+
+const InfoTableClassName = 'InfoTable';
 
 enum TableState {
   READY = 'ready',
@@ -33,9 +39,6 @@ enum SortOrder {
   ASC = 'asc',
   DESC = 'desc'
 }
-
-const FOLDER_ICON = '/images/FolderIcon.svg';
-const FILE_ICON = '/images/FileIcon.svg';
 
 const getSortParams = (by: TableColumn, order: SortOrder): { iteratee: string[]; orders: SortOrder[] } => {
   switch (by) {
@@ -65,6 +68,46 @@ const getParent = (path: string): string => {
   const pathParts = path.split('/');
   return pathParts.slice(0, pathParts.length - 1).join('/');
 };
+
+const SortCaret = ({
+  column,
+  sortBy,
+  sortOrder
+}: {
+  column: TableColumn;
+  sortBy: TableColumn;
+  sortOrder: SortOrder;
+}): React.ReactElement => {
+  if (column === sortBy) {
+    return (
+      <img
+        className={`${InfoTableClassName}-SortCaret`}
+        src={sortOrder === SortOrder.ASC ? CaretDown : CaretUp}
+        alt='Sort caret indicator'
+      />
+    );
+  } else {
+    return <></>;
+  }
+};
+
+const SortableTableHeader = ({
+  clickHandler,
+  column,
+  sortBy,
+  sortOrder,
+  children
+}: {
+  clickHandler: (by: TableColumn) => () => void;
+  column: TableColumn;
+  sortBy: TableColumn;
+  sortOrder: SortOrder;
+  children: string;
+}): React.ReactElement => (
+  <th className={`${InfoTableClassName}-SortableTableHeader`} onClick={clickHandler(column)}>
+    {children} <SortCaret column={column} sortBy={sortBy} sortOrder={sortOrder} />
+  </th>
+);
 
 const InfoTable = (): React.ReactElement => {
   const { repositoryId, hash, path } = useParams<IURLParams>();
@@ -115,18 +158,28 @@ const InfoTable = (): React.ReactElement => {
       <thead>
         <tr>
           <th>#</th>
-          <th onClick={changeSortOrder(TableColumn.NAME)}>Name</th>
-          <th onClick={changeSortOrder(TableColumn.HASH)}>Last commit</th>
-          <th onClick={changeSortOrder(TableColumn.MESSAGE)}>Commit message</th>
-          <th onClick={changeSortOrder(TableColumn.AUTHOR)}>Author</th>
-          <th onClick={changeSortOrder(TableColumn.TIMESTAMP)}>Updated</th>
+          <SortableTableHeader column={TableColumn.NAME} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
+            Name
+          </SortableTableHeader>
+          <SortableTableHeader column={TableColumn.HASH} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
+            Last commit
+          </SortableTableHeader>
+          <SortableTableHeader column={TableColumn.MESSAGE} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
+            Commit message
+          </SortableTableHeader>
+          <SortableTableHeader column={TableColumn.AUTHOR} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
+            Author
+          </SortableTableHeader>
+          <SortableTableHeader column={TableColumn.TIMESTAMP} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
+            Updated
+          </SortableTableHeader>
         </tr>
       </thead>
       <tbody>
         {path && tableState === TableState.READY && (
           <tr>
             <td>
-              <img src={FOLDER_ICON} alt={'folder'} />
+              <img src={FolderIcon} alt={'folder'} />
             </td>
             <td>
               <Link to={getHref({ repositoryId, mode: 'tree', hash, path: getParent(path) })}>../</Link>
@@ -138,9 +191,9 @@ const InfoTable = (): React.ReactElement => {
             <tr key={item.name}>
               <td>
                 {item.type === IEntryType.FILE ? (
-                  <img src={FILE_ICON} alt={'file'} />
+                  <img src={FileIcon} alt={'file'} />
                 ) : (
-                  <img src={FOLDER_ICON} alt={'folder'} />
+                  <img src={FolderIcon} alt={'folder'} />
                 )}
               </td>
               <td>

@@ -12,5 +12,5 @@
     "baseUrl": ".",
     "moduleResolution": "node"
   },
-  "include": ["./src"]
+  "include": ["src/**/*"]
 }
