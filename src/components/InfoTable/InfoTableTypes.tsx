@@ -7,10 +7,6 @@ export interface InfoTableItem {
   date?: string;
 }
 
-export interface InfoTableItemProps {
-  item: InfoTableItem;
-}
-
 export enum InfoTableItemType {
   FOLDER = 'folder',
   FILE = 'file',
