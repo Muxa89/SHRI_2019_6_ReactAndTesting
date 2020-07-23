@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import './InfoTable.sass';
-import '../Link/Link.sass';
-import '../Commiter/Commiter.sass';
+import 'src/components/InfoTable/InfoTable.sass';
 import IURLParams from 'src/interfaces/IURLParams';
 import { api } from 'src/util/api';
 import Table from 'react-bootstrap/Table';
@@ -69,7 +67,7 @@ const getParent = (path: string): string => {
   return pathParts.slice(0, pathParts.length - 1).join('/');
 };
 
-const SortCaret = ({
+const SortOrderArrow = ({
   column,
   sortBy,
   sortOrder
@@ -79,34 +77,106 @@ const SortCaret = ({
   sortOrder: SortOrder;
 }): React.ReactElement => {
   if (column === sortBy) {
-    return (
-      <img
-        className={`${InfoTableClassName}-SortCaret`}
-        src={sortOrder === SortOrder.ASC ? CaretDown : CaretUp}
-        alt='Sort caret indicator'
-      />
-    );
+    return <CaretIconComponent sortOrder={sortOrder} />;
   } else {
     return <></>;
   }
 };
 
-const SortableTableHeader = ({
+const SortableTH = ({
   clickHandler,
   column,
   sortBy,
   sortOrder,
-  children
+  text
 }: {
   clickHandler: (by: TableColumn) => () => void;
   column: TableColumn;
   sortBy: TableColumn;
   sortOrder: SortOrder;
-  children: string;
+  text: string;
 }): React.ReactElement => (
   <th className={`${InfoTableClassName}-SortableTableHeader`} onClick={clickHandler(column)}>
-    {children} <SortCaret column={column} sortBy={sortBy} sortOrder={sortOrder} />
+    {text} <SortOrderArrow column={column} sortBy={sortBy} sortOrder={sortOrder} />
   </th>
+);
+
+const FolderIconComponent = () => <img src={FolderIcon} alt={'folder'} />;
+
+const FileComponent = () => <img src={FileIcon} alt={'file'} />;
+
+const CaretIconComponent = ({ sortOrder }: { sortOrder: SortOrder }) => (
+  <img
+    className={`${InfoTableClassName}-SortCaret`}
+    src={sortOrder === SortOrder.ASC ? CaretDown : CaretUp}
+    alt={sortOrder === SortOrder.ASC ? 'asc' : 'desc'}
+  />
+);
+
+const ParentRow = ({
+  repositoryId,
+  hash,
+  path
+}: {
+  repositoryId: string;
+  hash: string | undefined;
+  path: string | undefined;
+}) => (
+  <tr>
+    <td>
+      <FolderIconComponent />
+    </td>
+    <td>
+      <Link
+        to={
+          path
+            ? getHref({
+                repositoryId: repositoryId,
+                mode: 'tree',
+                hash,
+                path: path && getParent(path)
+              })
+            : '/repos'
+        }
+      >
+        ../
+      </Link>
+    </td>
+  </tr>
+);
+
+const EntryRow = ({
+  item: { lastCommit, name, type },
+  repositoryId,
+  hash,
+  path
+}: {
+  item: ITreeEntryInfo;
+  repositoryId: string | undefined;
+  hash: string | undefined;
+  path: string | undefined;
+}) => (
+  <tr>
+    <td>{type === IEntryType.FILE ? <FileComponent /> : <FolderIconComponent />}</td>
+    <td>
+      <Link
+        to={getHref({
+          repositoryId: repositoryId,
+          mode: type === IEntryType.FILE ? 'blob' : 'tree',
+          hash: hash,
+          path: `${path || ''}${path ? '/' : ''}${name}`
+        })}
+      >
+        {name}
+      </Link>
+    </td>
+    <td>{lastCommit.hash}</td>
+    <td>{lastCommit.message}</td>
+    <td>{lastCommit.author}</td>
+    <td title={moment(lastCommit.timestamp).format(FULL_DATE_TIME_FORMAT)}>
+      {moment(lastCommit.timestamp).format(HUMAN_READABLE_DATE_TIME_FORMAT)}
+    </td>
+  </tr>
 );
 
 const InfoTable = (): React.ReactElement => {
@@ -144,77 +214,44 @@ const InfoTable = (): React.ReactElement => {
   }, [repositoryId, hash, path]);
 
   // TODO add spinner on file loading
-  // TODO add sort column indicator
   return (
-    <Table className='InfoTable'>
+    <Table className={InfoTableClassName}>
       <colgroup>
-        <col className='InfoTable-Type' />
-        <col className='InfoTable-Name' />
-        <col className='InfoTable-LastCommit' />
-        <col className='InfoTable-CommitMessage' />
-        <col className='InfoTable-Author' />
-        <col className='InfoTable-Updated' />
+        <col className={`${InfoTableClassName}-Type`} />
+        <col className={`${InfoTableClassName}-Name`} />
+        <col className={`${InfoTableClassName}-LastCommit`} />
+        <col className={`${InfoTableClassName}-CommitMessage`} />
+        <col className={`${InfoTableClassName}-Author`} />
+        <col className={`${InfoTableClassName}-Updated`} />
       </colgroup>
       <thead>
         <tr>
           <th>#</th>
-          <SortableTableHeader column={TableColumn.NAME} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
-            Name
-          </SortableTableHeader>
-          <SortableTableHeader column={TableColumn.HASH} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
-            Last commit
-          </SortableTableHeader>
-          <SortableTableHeader column={TableColumn.MESSAGE} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
-            Commit message
-          </SortableTableHeader>
-          <SortableTableHeader column={TableColumn.AUTHOR} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
-            Author
-          </SortableTableHeader>
-          <SortableTableHeader column={TableColumn.TIMESTAMP} clickHandler={changeSortOrder} {...{ sortBy, sortOrder }}>
-            Updated
-          </SortableTableHeader>
+          {([
+            [TableColumn.NAME, 'Name'],
+            [TableColumn.HASH, 'Last commit'],
+            [TableColumn.MESSAGE, 'Commit message'],
+            [TableColumn.AUTHOR, 'Author'],
+            [TableColumn.TIMESTAMP, 'Updated']
+          ] as Array<[TableColumn, string]>).map(([col, text]) => (
+            <SortableTH
+              key={text}
+              column={col}
+              text={text}
+              clickHandler={changeSortOrder}
+              sortBy={sortBy}
+              sortOrder={sortOrder}
+            />
+          ))}
         </tr>
       </thead>
       <tbody>
-        {path && tableState === TableState.READY && (
-          <tr>
-            <td>
-              <img src={FolderIcon} alt={'folder'} />
-            </td>
-            <td>
-              <Link to={getHref({ repositoryId, mode: 'tree', hash, path: getParent(path) })}>../</Link>
-            </td>
-          </tr>
+        {repositoryId && tableState === TableState.READY && (
+          <ParentRow repositoryId={repositoryId} hash={hash} path={path} />
         )}
         {tableState === TableState.READY &&
           items.map(item => (
-            <tr key={item.name}>
-              <td>
-                {item.type === IEntryType.FILE ? (
-                  <img src={FileIcon} alt={'file'} />
-                ) : (
-                  <img src={FolderIcon} alt={'folder'} />
-                )}
-              </td>
-              <td>
-                <Link
-                  to={getHref({
-                    repositoryId,
-                    mode: item.type === IEntryType.FILE ? 'blob' : 'tree',
-                    hash,
-                    path: `${path || ''}${path ? '/' : ''}${item.name}`
-                  })}
-                >
-                  {item.name}
-                </Link>
-              </td>
-              <td>{item.lastCommit.hash}</td>
-              <td>{item.lastCommit.message}</td>
-              <td>{item.lastCommit.author}</td>
-              <td title={moment(item.lastCommit.timestamp).format(FULL_DATE_TIME_FORMAT)}>
-                {moment(item.lastCommit.timestamp).format(HUMAN_READABLE_DATE_TIME_FORMAT)}
-              </td>
-            </tr>
+            <EntryRow key={item.name} item={item} repositoryId={repositoryId} hash={hash} path={path} />
           ))}
       </tbody>
     </Table>
