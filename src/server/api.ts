@@ -199,6 +199,7 @@ const executeCommand = (command: string, args: string[]): Promise<string[]> => {
     const output: string[] = [];
     const child = childProcess.spawn(command, args);
     child.stdout.on('data', data => output.push(data.toString()));
+    child.stderr.on('data', err => console.error(`!!!!!!!!!!! ${err}`));
     child.stdout.on('close', () => res(output));
   });
 };
@@ -250,6 +251,7 @@ export const getCommits = async (
 ): Promise<ICommitInfo[]> => {
   const args = ['log', '--pretty=format:"%h||%an||%at||%s"', '-n', `${limit}`, hash];
   if (path) {
+    args.push('--');
     args.push(path);
   }
   const gitLogOutput = await executeGitCommand(directory, args);
