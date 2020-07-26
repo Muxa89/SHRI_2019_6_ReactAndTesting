@@ -9,6 +9,7 @@ import ICommitInfo from 'src/interfaces/ICommitInfo';
 import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util/constants';
 import { fetchLastCommitData } from 'src/components/LastCommitInfo/requests';
 import moment = require('moment');
+import { displayNotification } from 'src/util/notificationService';
 
 const CLASS_NAME = 'LastCommitInfo';
 
@@ -30,7 +31,12 @@ const LastCommitInfo = (): React.ReactElement | null => {
   }
 
   useEffect(() => {
-    fetchLastCommitData(repositoryId, hash).then(commitInfo => setCommitInfo(commitInfo));
+    fetchLastCommitData(repositoryId, hash)
+      .then(commitInfo => setCommitInfo(commitInfo))
+      .catch(err => {
+        setCommitInfo(null);
+        displayNotification(`An error occurred while fetching for last commit information: ${err}`);
+      });
   }, [repositoryId, hash]);
 
   if (!commitInfo) {
