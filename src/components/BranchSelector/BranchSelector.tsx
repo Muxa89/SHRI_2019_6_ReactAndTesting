@@ -19,7 +19,7 @@ const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   }
 };
 
-export const NameFilter = ({
+const NameFilter = ({
   filter,
   setFilter
 }: {
@@ -34,7 +34,7 @@ export const NameFilter = ({
   />
 );
 
-export const DropdownItems = ({
+const DropdownItems = ({
   branches,
   isSpinnerVisible
 }: {
@@ -71,16 +71,15 @@ const BranchSelector = (): React.ReactElement | null => {
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
   const { repositoryId, hash }: IURLParams = useParams();
 
-  if (!repositoryId) {
+  if (!repositoryId || !hash) {
     return null;
   }
 
-  // TODO fetch default branch name if no hash provided in URL
   return (
     <DropdownButton
       id='BranchSelector'
       className='BranchSelector'
-      title={hash || 'master'}
+      title={hash}
       onToggle={async (isOpen: boolean) => {
         if (isOpen) {
           setBranches([]);
