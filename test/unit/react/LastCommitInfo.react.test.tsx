@@ -86,3 +86,22 @@ test('Calls NotificationService when API returns error', async () => {
 
   expect(displayNotification as Mock).toBeCalled();
 });
+
+test('Displays relative datetime string if last commit was less than a day ago', async () => {
+  const urlParams: IURLParams = { repositoryId: 'repo', hash: 'hash' };
+  useParams.mockReturnValue(urlParams);
+
+  const mockCommitInfo: ICommitInfo = {
+    hash: 'commitHash',
+    author: 'author',
+    timestamp: Date.now(),
+    message: 'message'
+  };
+  fetchLastCommitData.mockResolvedValue(mockCommitInfo);
+
+  render(<LastCommitInfo />);
+
+  await waitFor(() => screen);
+
+  expect(screen.queryByText('a few seconds ago', { exact: false })).toBeInTheDocument();
+});

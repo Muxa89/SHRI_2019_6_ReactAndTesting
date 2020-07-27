@@ -76,8 +76,7 @@ export function getServer(root: string): Express {
 
   app.get(api.lastCommit.path, async (req, res) => {
     const { repository, branch } = req.params as typeof api.lastCommit.params;
-    const commits = await getCommits(resolve(root, repository), branch, 1);
-    res.send(first(commits));
+    res.send(first(await getCommits(resolve(root, repository), branch, 1)));
   });
 
   app.get(api.tree.path, async (req, res) => {

@@ -24,11 +24,12 @@ const getTimeString = (timestamp: number): string => {
 
 const LastCommitInfo = (): React.ReactElement | null => {
   const { repositoryId, hash }: IURLParams = useParams();
-  const [commitInfo, setCommitInfo] = useState<ICommitInfo | null>(null);
 
   if (!repositoryId || !hash) {
     return null;
   }
+
+  const [commitInfo, setCommitInfo] = useState<ICommitInfo | null>(null);
 
   useEffect(() => {
     fetchLastCommitData(repositoryId, hash)
