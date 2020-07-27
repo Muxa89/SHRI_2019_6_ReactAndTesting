@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import * as reactRouterDom from 'react-router';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import Mock = jest.Mock;
 
 import BranchSelector from 'src/components/BranchSelector/BranchSelector';
 import IURLParams from 'src/interfaces/IURLParams';
 import * as requests from 'src/components/BranchSelector/requests';
+import Mock = jest.Mock;
 
 jest.mock('react-router');
 jest.mock('src/components/BranchSelector/requests');
@@ -22,7 +22,7 @@ test('Normal display when all needed info provided', async () => {
 
   render(<BranchSelector />);
 
-  expect(screen.getByText(urlParams.hash!)).toBeVisible();
+  expect(screen.queryByRole('button')).toBeInTheDocument();
 });
 
 test('Dropdown displayed on dropdown button click', async () => {
@@ -45,4 +45,90 @@ test('Dropdown displayed on dropdown button click', async () => {
   });
 
   expect(screen.getByText(fetchBranchesResponse[0])).toBeVisible();
+});
+
+test('Items should be filtered on filter value change', async () => {
+  const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  const fetchBranchesResponse: string[] = ['branch1', 'branch2'];
+  fetchBranches.mockResolvedValue(fetchBranchesResponse);
+
+  render(<BranchSelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByText(urlParams.hash!));
+  });
+
+  expect(screen.queryAllByText('branch', { exact: false })).toHaveLength(2);
+
+  act(() => {
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: '1' } });
+  });
+
+  expect(screen.queryAllByText('branch', { exact: false })).toHaveLength(1);
+});
+
+test('Items filtered case-insensitive', async () => {
+  const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  const fetchBranchesResponse: string[] = ['BRANCH', 'branch'];
+  fetchBranches.mockResolvedValue(fetchBranchesResponse);
+
+  render(<BranchSelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByText(urlParams.hash!));
+  });
+
+  act(() => {
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'br' } });
+  });
+
+  expect(screen.queryAllByText('branch', { exact: false })).toHaveLength(2);
+});
+
+test('Not displayed when no hash in URLParams', async () => {
+  const urlParams = { repositoryId: 'repo' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  render(<BranchSelector />);
+
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+});
+
+test('Not displayed when no repositoryId in URLParams', async () => {
+  const urlParams = { hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  render(<BranchSelector />);
+
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
+});
+
+test('Spinner displayed when fetching for items', async () => {
+  const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  let resolveFetchBranches: (branches: string[]) => void;
+
+  fetchBranches.mockImplementation(
+    () =>
+      new Promise(res => {
+        resolveFetchBranches = res;
+      })
+  );
+
+  render(<BranchSelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+
+  expect(document.querySelector('div[class^="spinner"]')).toBeVisible();
+
+  await act(async () => await resolveFetchBranches(['branch1', 'branch2']));
+
+  expect(document.querySelector('div[class^="spinner"]')).toBeNull();
 });
