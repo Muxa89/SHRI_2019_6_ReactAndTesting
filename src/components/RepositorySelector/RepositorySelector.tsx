@@ -40,7 +40,7 @@ const RepositoryNameFilter = ({
   <Form.Control
     autoFocus
     value={filter}
-    onChange={e => setFilter(e.target.value)}
+    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
     placeholder={'Enter repository name...'}
   />
 );

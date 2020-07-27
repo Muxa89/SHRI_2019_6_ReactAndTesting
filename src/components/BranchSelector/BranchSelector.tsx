@@ -1,26 +1,25 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Dropdown from 'react-bootstrap/Dropdown';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import Spinner from 'react-bootstrap/Spinner';
+import { Dropdown, DropdownButton, Spinner, Form } from 'react-bootstrap';
 import 'src/components/BranchSelector/BranchSelector.sass';
 import { getHref } from 'src/util/getHref';
 import { includes } from 'lodash';
-import Form from 'react-bootstrap/Form';
 import IURLParams from 'src/interfaces/IURLParams';
-import { api } from 'src/util/api';
+import { fetchBranchesRequest } from 'src/components/BranchSelector/requests';
+import { displayNotification } from 'src/util/notificationService';
+import { NotificationType } from 'src/util/notificationService';
 
-const fetchBranches = async (repositoryId: string | undefined): Promise<string[]> => {
-  if (!repositoryId) {
+const fetchBranches = async (repositoryId: string): Promise<string[]> => {
+  try {
+    return fetchBranchesRequest(repositoryId);
+  } catch (err) {
+    displayNotification(`An error occurred while fetching for branches in project: ${err}`, NotificationType.ERROR);
     return [];
   }
-
-  const response = await fetch(api.branches.withParams({ repository: repositoryId }));
-  return response.json();
 };
 
-const BranchNameFilter = ({
+export const NameFilter = ({
   filter,
   setFilter
 }: {
@@ -30,25 +29,12 @@ const BranchNameFilter = ({
   <Form.Control
     autoFocus
     value={filter}
-    onChange={e => setFilter(e.target.value)}
+    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
     placeholder={'Enter branch name...'}
   />
 );
 
-const onToggleHandler = (
-  repositoryId: string | undefined,
-  setBranches: (branches: string[]) => void,
-  setSpinnerVisible: (isVisible: boolean) => void
-) => async (isOpen: boolean) => {
-  if (isOpen) {
-    setBranches([]);
-    setSpinnerVisible(true);
-    setBranches(await fetchBranches(repositoryId));
-    setSpinnerVisible(false);
-  }
-};
-
-const DropdownItems = ({
+export const DropdownItems = ({
   branches,
   isSpinnerVisible
 }: {
@@ -63,7 +49,7 @@ const DropdownItems = ({
   const { repositoryId, mode, hash, path }: IURLParams = useParams();
   return (
     <>
-      <BranchNameFilter filter={nameFilter} setFilter={setNameFilter} />
+      <NameFilter filter={nameFilter} setFilter={setNameFilter} />
       <Dropdown.Divider />
       {branches
         .filter(branchName => includes(branchName.toLowerCase(), nameFilter.toLowerCase()))
@@ -80,10 +66,14 @@ const DropdownItems = ({
   );
 };
 
-const BranchSelector = (): React.ReactElement => {
+const BranchSelector = (): React.ReactElement | null => {
   const [branches, setBranches] = useState<string[]>([]);
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
   const { repositoryId, hash }: IURLParams = useParams();
+
+  if (!repositoryId) {
+    return null;
+  }
 
   // TODO fetch default branch name if no hash provided in URL
   return (
@@ -91,7 +81,14 @@ const BranchSelector = (): React.ReactElement => {
       id='BranchSelector'
       className='BranchSelector'
       title={hash || 'master'}
-      onToggle={onToggleHandler(repositoryId, setBranches, setSpinnerVisible)}
+      onToggle={async (isOpen: boolean) => {
+        if (isOpen) {
+          setBranches([]);
+          setSpinnerVisible(true);
+          setBranches(await fetchBranches(repositoryId));
+          setSpinnerVisible(false);
+        }
+      }}
     >
       <DropdownItems isSpinnerVisible={isSpinnerVisible} branches={branches} />
     </DropdownButton>
