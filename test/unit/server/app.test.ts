@@ -9,18 +9,6 @@ import { getServer } from '../../../src/server/app';
 
 const app = getServer('path_to_root');
 
-test('/api/repos', () => {
-  return request(app)
-    .get('/api/repos')
-    .then(response => {
-      expect(response.body).toEqual([
-        { name: 'Repo1', type: 'folder' },
-        { name: 'Repo2', type: 'folder' },
-        { name: 'Repo3', type: 'folder' }
-      ]);
-    });
-});
-
 export interface HasName {
   name: string;
 }
