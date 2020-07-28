@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Dropdown, DropdownButton, Spinner, Form } from 'react-bootstrap';
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 import 'src/components/BranchSelector/BranchSelector.sass';
 import { getHref } from 'src/util/getHref';
-import { includes } from 'lodash';
 import IURLParams from 'src/interfaces/IURLParams';
 import { fetchBranchesRequest } from 'src/components/BranchSelector/requests';
 import { displayNotification } from 'src/util/notificationService';
 import { NotificationType } from 'src/util/notificationService';
+import DropdownItemsWithFilter from 'src/components/DropdownItemsWithFilter/DropdownItemsWithFilter';
 
 const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   try {
@@ -19,57 +19,10 @@ const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   }
 };
 
-const NameFilter = ({
-  filter,
-  setFilter
-}: {
-  filter: string;
-  setFilter: (filter: string) => void;
-}): React.ReactElement => (
-  <Form.Control
-    autoFocus
-    value={filter}
-    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-    placeholder={'Enter branch name...'}
-  />
-);
-
-const DropdownItems = ({
-  branches,
-  isSpinnerVisible
-}: {
-  branches: string[];
-  isSpinnerVisible: boolean;
-}): React.ReactElement => {
-  if (isSpinnerVisible) {
-    return <Spinner animation='border' />;
-  }
-
-  const [nameFilter, setNameFilter] = useState<string>('');
-  const { repositoryId, mode, hash, path }: IURLParams = useParams();
-  return (
-    <>
-      <NameFilter filter={nameFilter} setFilter={setNameFilter} />
-      <Dropdown.Divider />
-      {branches
-        .filter(branchName => includes(branchName.toLowerCase(), nameFilter.toLowerCase()))
-        .map(branchName => (
-          <Dropdown.Item
-            key={branchName}
-            active={branchName === hash}
-            href={getHref({ repositoryId, mode, hash: branchName, path })}
-          >
-            {branchName}
-          </Dropdown.Item>
-        ))}
-    </>
-  );
-};
-
 const BranchSelector = (): React.ReactElement | null => {
   const [branches, setBranches] = useState<string[]>([]);
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
-  const { repositoryId, hash }: IURLParams = useParams();
+  const { repositoryId, hash, mode, path }: IURLParams = useParams();
 
   if (!repositoryId || !hash) {
     return null;
@@ -89,7 +42,17 @@ const BranchSelector = (): React.ReactElement | null => {
         }
       }}
     >
-      <DropdownItems isSpinnerVisible={isSpinnerVisible} branches={branches} />
+      <DropdownItemsWithFilter isSpinnerVisible={isSpinnerVisible} filterPlaceholder={'Enter branch name...'}>
+        {branches.map(branchName => (
+          <Dropdown.Item
+            key={branchName}
+            active={branchName === hash}
+            href={getHref({ repositoryId, mode, hash: branchName, path })}
+          >
+            {branchName}
+          </Dropdown.Item>
+        ))}
+      </DropdownItemsWithFilter>
     </DropdownButton>
   );
 };
