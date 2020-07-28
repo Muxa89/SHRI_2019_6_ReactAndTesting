@@ -4,94 +4,62 @@ import 'src/components/Selector/Selector.sass';
 import 'src/components/RepositorySelector/RepositorySelector.sass';
 import IURLParams from 'src/interfaces/IURLParams';
 import { useParams } from 'react-router-dom';
-import DropdownButton from 'react-bootstrap/DropdownButton';
-import Spinner from 'react-bootstrap/Spinner';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { includes } from 'lodash';
+import { DropdownButton } from 'react-bootstrap';
+import { Dropdown } from 'react-bootstrap';
 import { getHref } from 'src/util/getHref';
-import Form from 'react-bootstrap/Form';
-import { api } from 'src/util/api';
+import { fetchRepositoriesRequest } from 'src/components/RepositorySelector/requests';
+import { displayNotification } from 'src/util/notificationService';
+import { NotificationType } from 'src/util/notificationService';
+import DropdownItemsWithFilter from 'src/components/DropdownItemsWithFilter/DropdownItemsWithFilter';
+
+const CLASS_NAME = 'RepositorySelector';
 
 const fetchRepositories = async (): Promise<string[]> => {
-  const response = await fetch(api.repositories.withParams());
-  return response.json();
-};
-
-const onToggleHandler = (
-  repositoryId: string | undefined,
-  setRepositories: (repositories: string[]) => void,
-  setSpinnerVisible: (isVisible: boolean) => void
-) => async (isOpen: boolean) => {
-  if (isOpen) {
-    setRepositories([]);
-    setSpinnerVisible(true);
-    setRepositories(await fetchRepositories());
-    setSpinnerVisible(false);
+  try {
+    return fetchRepositoriesRequest();
+  } catch (err) {
+    displayNotification(`An error occurred while fetching for repositories in project: ${err}`, NotificationType.ERROR);
+    return [];
   }
 };
 
-const RepositoryNameFilter = ({
-  filter,
-  setFilter
-}: {
-  filter: string;
-  setFilter: (filter: string) => void;
-}): React.ReactElement => (
-  <Form.Control
-    autoFocus
-    value={filter}
-    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-    placeholder={'Enter repository name...'}
-  />
-);
-
-const DropdownItems = ({
-  repositories,
-  isSpinnerVisible
-}: {
-  repositories: string[];
-  isSpinnerVisible: boolean;
-}): React.ReactElement => {
-  if (isSpinnerVisible) {
-    return <Spinner animation='border' />;
-  }
-
-  const [nameFilter, setNameFilter] = useState<string>('');
+const RepositorySelector = (): React.ReactElement | null => {
   const { repositoryId }: IURLParams = useParams();
-  return (
-    <>
-      <RepositoryNameFilter filter={nameFilter} setFilter={setNameFilter} />
-      <Dropdown.Divider />
-      {repositories
-        .filter(repositoryName => includes(repositoryName.toLowerCase(), nameFilter.toLowerCase()))
-        .map(repositoryName => (
-          <Dropdown.Item
-            key={repositoryName}
-            active={repositoryName === repositoryId}
-            href={getHref({ repositoryId: repositoryName })}
-          >
-            {repositoryName}
-          </Dropdown.Item>
-        ))}
-    </>
-  );
-};
+  if (!repositoryId) {
+    return null;
+  }
 
-const RepositorySelector = (): React.ReactElement => {
   const [repositories, setRepositories] = useState<string[]>([]);
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
-  const { repositoryId }: IURLParams = useParams();
+
   return (
-    <div className='RepositorySelector Header-RepositorySelector Selector'>
-      <span className='RepositorySelector-Repository'>Repository</span>
+    <div className={CLASS_NAME}>
+      <span className={`${CLASS_NAME}-RepositoryName`}>Repository</span>
       <DropdownButton
-        id='RepositorySelector-Button'
-        className='RepositorySelector-Button'
+        id={`${CLASS_NAME}-Button`}
+        className={`${CLASS_NAME}-Button`}
         title={repositoryId}
-        onToggle={onToggleHandler(repositoryId, setRepositories, setSpinnerVisible)}
+        onToggle={async (isOpen: boolean) => {
+          if (isOpen) {
+            setRepositories([]);
+            setSpinnerVisible(true);
+            setRepositories(await fetchRepositories());
+            setSpinnerVisible(false);
+          }
+        }}
         variant='secondary'
       >
-        <DropdownItems isSpinnerVisible={isSpinnerVisible} repositories={repositories} />
+        <DropdownItemsWithFilter isSpinnerVisible={isSpinnerVisible} filterPlaceholder={'Enter repository name...'}>
+          {repositories.map(repositoryName => (
+            <Dropdown.Item
+              key={repositoryName}
+              active={repositoryName === repositoryId}
+              href={getHref({ repositoryId, mode: 'tree' })}
+            >
+              {repositoryName}
+            </Dropdown.Item>
+          ))}
+        </DropdownItemsWithFilter>
       </DropdownButton>
     </div>
   );

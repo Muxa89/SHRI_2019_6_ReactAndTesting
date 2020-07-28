@@ -4,39 +4,14 @@
   display: flex
   align-items: center
   margin-bottom: 1rem
-  height: 100%
   font:
     family: 'PT Sans'
-    size: 1.2rem
-  
-  &-Text
-    box-sizing: border-box
-    border-bottom: 
-      width: 3px
-      style: solid
-      color: $selector-underline-red
-    display: flex
-    align-items: center
-    @if $screen-width == 1440px
-      margin-top: -5px
-    @else if $screen-width == 360px
-      margin-top: 6px
 
-  &-Repository
-    font-weight: bold
+  &-RepositoryName
+    font:
+      weight: bold
+      size: 1.5rem
     margin-right: 1rem
-
-  &-Name
-    @if $screen-width == 1440px
-      margin-left: 5px
-    @else if $screen-width == 360px
-      margin-left: 3px
-
-  &-Arrow
-    @if $screen-width == 1440px
-      margin-top: -3px
-    @else if $screen-width == 360px
-      margin-top: 3px
 
   & .spinner-border
     position: relative
