@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import Breadcrumbs from '../Breadcrumbs/Breadcrumbs';
-import ItemAndBranchContainer from '../ItemAndBranchContainer/ItemAndBranchContainer';
-import LastCommitInfo from '../LastCommitInfo/LastCommitInfo';
-import ViewSelector from '../ViewSelector/ViewSelector';
-import InfoTable from '../InfoTable/InfoTable';
+import Breadcrumbs from 'src/components/Breadcrumbs/Breadcrumbs';
+import ItemAndBranchContainer from 'src/components/ItemAndBranchContainer/ItemAndBranchContainer';
+import LastCommitInfo from 'src/components/LastCommitInfo/LastCommitInfo';
+import ViewSelector from 'src/components/ViewSelector/ViewSelector';
+import InfoTable from 'src/components/InfoTable/InfoTable';
 import RepositorySelector from 'src/components/RepositorySelector/RepositorySelector';
-import DetailPanel from '../DetailPanel/DetailPanel';
+import DetailPanel from 'src/components/DetailPanel/DetailPanel';
 
-import { blobPath, treeModePath } from '../../util/constants';
-import './Main.sass';
+import { blobPath, treeModePath } from 'src/util/constants';
+import 'src/components/Main/Main.sass';
 
 const Main = (): React.ReactElement => {
   return (

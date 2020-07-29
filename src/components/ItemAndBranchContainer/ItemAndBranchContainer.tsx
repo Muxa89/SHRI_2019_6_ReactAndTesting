@@ -1,5 +1,5 @@
 import * as React from 'react';
-import './ItemAndBranchContainer.sass';
+import 'src/components/ItemAndBranchContainer/ItemAndBranchContainer.sass';
 import SelectedItem from 'src/components/SelectedItem/SelectedItem';
 import BranchSelector from 'src/components/BranchSelector/BranchSelector';
 

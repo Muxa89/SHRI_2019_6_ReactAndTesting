@@ -3,7 +3,7 @@ import ITreeEntryInfo from 'src/interfaces/ITreeEntryInfo';
 import { IEntryType } from 'src/interfaces/IEntryType';
 import { Link } from 'react-router-dom';
 import { getHref } from 'src/util/getHref';
-import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from '../../util/constants';
+import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util/constants';
 import File from 'src/components/InfoTable/icons/File';
 import Folder from 'src/components/InfoTable/icons/Folder';
 import moment = require('moment');
