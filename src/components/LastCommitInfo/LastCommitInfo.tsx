@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import IURLParams from 'src/interfaces/IURLParams';
 import 'src/components/LastCommitInfo/LastCommitInfo.sass';
-import 'src/components/Commiter/Commiter.sass';
-import 'src/components/Link/Link.sass';
 import ICommitInfo from 'src/interfaces/ICommitInfo';
 import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util/constants';
 import { fetchLastCommitData } from 'src/components/LastCommitInfo/requests';
@@ -50,8 +48,7 @@ const LastCommitInfo = (): React.ReactElement | null => {
 
   const { hash: commitHash, timestamp, author } = commitInfo;
 
-  // TODO добавить ссылку на комит
-  // TODO добавить тултип для даты
+  // TODO добавить ссылку на просмотр комита
   return (
     <div className={CLASS_NAME}>
       Last commit <span className={`${CLASS_NAME}-Hash`}>{commitHash} </span>on{' '}

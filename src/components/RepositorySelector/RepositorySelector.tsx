@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useState } from 'react';
-import 'src/components/Selector/Selector.sass';
 import 'src/components/RepositorySelector/RepositorySelector.sass';
 import IURLParams from 'src/interfaces/IURLParams';
 import { useParams } from 'react-router-dom';

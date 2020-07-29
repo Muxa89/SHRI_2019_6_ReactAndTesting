@@ -8,11 +8,11 @@ import '../../../node_modules/prismjs/plugins/line-numbers/prism-line-numbers.cs
 import '../../../node_modules/prismjs/plugins/line-numbers/prism-line-numbers.min.js';
 
 import './DetailPanel.sass';
-import { InfoTableUrlParams } from '../InfoTable/InfoTableTypes';
+import IURLParams from 'src/interfaces/IURLParams';
 
 const DetailPanel = (): React.ReactElement => {
   const urlParams = useParams();
-  const { repositoryId, hash, path } = urlParams as InfoTableUrlParams;
+  const { repositoryId, hash, path } = urlParams as IURLParams;
   const dataSource = `http://localhost:3000/api/repos/${repositoryId}/blob/${hash}/${path}`;
   const pathParts = (path || '').split('/').filter(part => part !== '');
   const fileName = pathParts[pathParts.length - 1];
