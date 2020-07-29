@@ -16,7 +16,7 @@ const CLASS_NAME = 'RepositorySelector';
 
 const fetchRepositories = async (): Promise<string[]> => {
   try {
-    return fetchRepositoriesRequest();
+    return await fetchRepositoriesRequest();
   } catch (err) {
     displayNotification(`An error occurred while fetching for repositories in project: ${err}`, NotificationType.ERROR);
     return [];

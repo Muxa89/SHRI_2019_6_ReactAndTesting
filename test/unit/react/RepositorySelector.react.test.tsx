@@ -8,13 +8,19 @@ import '@testing-library/jest-dom/extend-expect';
 import RepositorySelector from 'src/components/RepositorySelector/RepositorySelector';
 import IURLParams from 'src/interfaces/IURLParams';
 import * as requests from 'src/components/RepositorySelector/requests';
+import { displayNotification } from 'src/util/notificationService';
 import Mock = jest.Mock;
 
 jest.mock('react-router');
 jest.mock('src/components/RepositorySelector/requests');
+jest.mock('src/util/notificationService');
 
 const useParams = reactRouterDom.useParams as Mock;
 const fetchRepositories = requests.fetchRepositoriesRequest as Mock;
+
+afterEach(() => {
+  (displayNotification as Mock).mockReset();
+});
 
 test('Normal display when all needed info provided', async () => {
   const urlParams = { repositoryId: 'repo' } as IURLParams;
@@ -113,4 +119,19 @@ test('Spinner displayed when fetching for items', async () => {
   await act(async () => await resolveFetchRepositories(['repo1', 'repo2']));
 
   expect(document.querySelector('div[class^="spinner"]')).toBeNull();
+});
+
+test('List of repositories is empty when API returns error', async () => {
+  const urlParams = { repositoryId: 'repo' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  fetchRepositories.mockRejectedValue(new Error('API returned error'));
+
+  render(<RepositorySelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+
+  expect(displayNotification).toBeCalledTimes(1);
 });

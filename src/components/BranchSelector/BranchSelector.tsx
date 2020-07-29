@@ -12,7 +12,7 @@ import DropdownItemsWithFilter from 'src/components/DropdownItemsWithFilter/Drop
 
 const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   try {
-    return fetchBranchesRequest(repositoryId);
+    return await fetchBranchesRequest(repositoryId);
   } catch (err) {
     displayNotification(`An error occurred while fetching for branches in project: ${err}`, NotificationType.ERROR);
     return [];

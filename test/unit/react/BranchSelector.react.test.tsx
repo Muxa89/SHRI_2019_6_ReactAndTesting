@@ -9,12 +9,18 @@ import BranchSelector from 'src/components/BranchSelector/BranchSelector';
 import IURLParams from 'src/interfaces/IURLParams';
 import * as requests from 'src/components/BranchSelector/requests';
 import Mock = jest.Mock;
+import { displayNotification } from 'src/util/notificationService';
 
 jest.mock('react-router');
 jest.mock('src/components/BranchSelector/requests');
+jest.mock('src/util/notificationService');
 
 const useParams = reactRouterDom.useParams as Mock;
 const fetchBranches = requests.fetchBranchesRequest as Mock;
+
+afterEach(() => {
+  (displayNotification as Mock).mockReset();
+});
 
 test('Normal display when all needed info provided', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
@@ -131,4 +137,19 @@ test('Spinner displayed when fetching for items', async () => {
   await act(async () => await resolveFetchBranches(['branch1', 'branch2']));
 
   expect(document.querySelector('div[class^="spinner"]')).toBeNull();
+});
+
+test('List of branches is empty when API returns error', async () => {
+  const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  fetchBranches.mockRejectedValue(new Error('API returned error'));
+
+  render(<BranchSelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+
+  expect(displayNotification).toBeCalledTimes(1);
 });
