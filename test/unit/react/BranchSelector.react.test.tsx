@@ -7,16 +7,16 @@ import '@testing-library/jest-dom/extend-expect';
 
 import BranchSelector from 'src/components/BranchSelector/BranchSelector';
 import IURLParams from 'src/interfaces/IURLParams';
-import * as requests from 'src/components/BranchSelector/requests';
+import fetchBranchesRequestOrig from 'src/components/BranchSelector/fetchBranchesRequest';
 import { displayNotification } from 'src/util/notificationService';
 import Mock = jest.Mock;
 
 jest.mock('react-router');
-jest.mock('src/components/BranchSelector/requests');
+jest.mock('src/components/BranchSelector/fetchBranchesRequest');
 jest.mock('src/util/notificationService');
 
 const useParams = reactRouterDom.useParams as Mock;
-const fetchBranchesRequest = requests.fetchBranchesRequest as Mock;
+const fetchBranchesRequest = fetchBranchesRequestOrig as Mock;
 
 afterEach(() => {
   (displayNotification as Mock).mockReset();

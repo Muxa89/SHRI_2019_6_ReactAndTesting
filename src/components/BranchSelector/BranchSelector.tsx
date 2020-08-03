@@ -5,10 +5,10 @@ import { Dropdown, DropdownButton } from 'react-bootstrap';
 import 'src/components/BranchSelector/BranchSelector.sass';
 import { getHref } from 'src/util/getHref';
 import IURLParams from 'src/interfaces/IURLParams';
-import { fetchBranchesRequest } from 'src/components/BranchSelector/requests';
+import fetchBranchesRequest from 'src/components/BranchSelector/fetchBranchesRequest';
 import { displayNotification } from 'src/util/notificationService';
 import { NotificationType } from 'src/util/notificationService';
-import DropdownItemsWithFilter from 'src/components/DropdownItemsWithFilter/DropdownItemsWithFilter';
+import DropdownFilterWrapper from 'src/components/DropdownFilterWrapper/DropdownFilterWrapper';
 
 const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   try {
@@ -19,40 +19,40 @@ const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   }
 };
 
+const DropdownBranchItem = ({ children }: { children: string }): React.ReactElement => {
+  const { repositoryId, hash, mode, path }: IURLParams = useParams();
+  return (
+    <Dropdown.Item active={children === hash} href={getHref({ repositoryId, mode, hash: children, path })}>
+      {children}
+    </Dropdown.Item>
+  );
+};
+
 const BranchSelector = (): React.ReactElement | null => {
   const [branches, setBranches] = useState<string[]>([]);
   const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
-  const { repositoryId, hash, mode, path }: IURLParams = useParams();
+  const { repositoryId, hash }: IURLParams = useParams();
 
   if (!repositoryId || !hash) {
     return null;
   }
 
+  const onToggleHandler = async (isOpen: boolean) => {
+    if (isOpen) {
+      setBranches([]);
+      setSpinnerVisible(true);
+      setBranches(await fetchBranches(repositoryId));
+      setSpinnerVisible(false);
+    }
+  };
+
   return (
-    <DropdownButton
-      id='BranchSelector'
-      className='BranchSelector'
-      title={hash}
-      onToggle={async (isOpen: boolean) => {
-        if (isOpen) {
-          setBranches([]);
-          setSpinnerVisible(true);
-          setBranches(await fetchBranches(repositoryId));
-          setSpinnerVisible(false);
-        }
-      }}
-    >
-      <DropdownItemsWithFilter isSpinnerVisible={isSpinnerVisible} filterPlaceholder={'Enter branch name...'}>
-        {branches.map(branchName => (
-          <Dropdown.Item
-            key={branchName}
-            active={branchName === hash}
-            href={getHref({ repositoryId, mode, hash: branchName, path })}
-          >
-            {branchName}
-          </Dropdown.Item>
+    <DropdownButton title={hash} onToggle={onToggleHandler} id='BranchSelector' className='BranchSelector'>
+      <DropdownFilterWrapper placeholder={'Enter branch name...'} isSpinnerVisible={isSpinnerVisible}>
+        {branches.map(branch => (
+          <DropdownBranchItem key={branch}>{branch}</DropdownBranchItem>
         ))}
-      </DropdownItemsWithFilter>
+      </DropdownFilterWrapper>
     </DropdownButton>
   );
 };

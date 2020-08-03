@@ -8,13 +8,13 @@ import { Form } from 'react-bootstrap';
 const filterChildren = (children: React.ReactElement<{ children: string }>[], filter: string): React.ReactNode[] =>
   children.filter(child => child && includes(child.props.children.toLowerCase(), filter.toLowerCase()));
 
-const DropdownItemsWithFilter = ({
+const DropdownFilterWrapper = ({
   isSpinnerVisible,
-  filterPlaceholder,
+  placeholder,
   children
 }: {
   isSpinnerVisible: boolean;
-  filterPlaceholder: string;
+  placeholder: string;
   children: React.ReactElement<{ children: string }>[];
 }): React.ReactElement => {
   if (isSpinnerVisible) {
@@ -28,7 +28,7 @@ const DropdownItemsWithFilter = ({
       <Form.Control
         autoFocus
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-        placeholder={filterPlaceholder}
+        placeholder={placeholder}
       />
       <Dropdown.Divider />
       {filterChildren(children, filter)}
@@ -36,4 +36,4 @@ const DropdownItemsWithFilter = ({
   );
 };
 
-export default DropdownItemsWithFilter;
+export default DropdownFilterWrapper;

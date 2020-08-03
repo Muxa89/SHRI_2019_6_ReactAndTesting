@@ -9,7 +9,7 @@ import { getHref } from 'src/util/getHref';
 import { fetchRepositoriesRequest } from 'src/components/RepositorySelector/requests';
 import { displayNotification } from 'src/util/notificationService';
 import { NotificationType } from 'src/util/notificationService';
-import DropdownItemsWithFilter from 'src/components/DropdownItemsWithFilter/DropdownItemsWithFilter';
+import DropdownFilterWrapper from 'src/components/DropdownFilterWrapper/DropdownFilterWrapper';
 
 const CLASS_NAME = 'RepositorySelector';
 
@@ -48,7 +48,7 @@ const RepositorySelector = (): React.ReactElement | null => {
         }}
         variant='secondary'
       >
-        <DropdownItemsWithFilter isSpinnerVisible={isSpinnerVisible} filterPlaceholder={'Enter repository name...'}>
+        <DropdownFilterWrapper isSpinnerVisible={isSpinnerVisible} placeholder={'Enter repository name...'}>
           {repositories.map(repositoryName => (
             <Dropdown.Item
               key={repositoryName}
@@ -58,7 +58,7 @@ const RepositorySelector = (): React.ReactElement | null => {
               {repositoryName}
             </Dropdown.Item>
           ))}
-        </DropdownItemsWithFilter>
+        </DropdownFilterWrapper>
       </DropdownButton>
     </div>
   );
