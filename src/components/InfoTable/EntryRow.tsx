@@ -6,6 +6,7 @@ import { getHref } from 'src/util/getHref';
 import { FULL_DATE_TIME_FORMAT, HUMAN_READABLE_DATE_TIME_FORMAT } from 'src/util/constants';
 import File from 'src/components/InfoTable/icons/File';
 import Folder from 'src/components/InfoTable/icons/Folder';
+import { ViewMode } from 'src/interfaces/ViewMode';
 import moment = require('moment');
 
 const EntryRow = ({
@@ -25,7 +26,7 @@ const EntryRow = ({
       <Link
         to={getHref({
           repositoryId: repositoryId,
-          mode: type === IEntryType.FILE ? 'blob' : 'tree',
+          mode: type === IEntryType.FILE ? ViewMode.BLOB : ViewMode.TREE,
           hash: hash,
           path: `${path || ''}${path ? '/' : ''}${name}`
         })}

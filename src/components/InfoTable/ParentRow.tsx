@@ -2,6 +2,7 @@ import * as React from 'react';
 import Folder from 'src/components/InfoTable/icons/Folder';
 import { Link } from 'react-router-dom';
 import { getHref } from 'src/util/getHref';
+import { ViewMode } from 'src/interfaces/ViewMode';
 
 const getParent = (path: string): string => {
   const pathParts = path.split('/');
@@ -27,7 +28,7 @@ const ParentRow = ({
           path
             ? getHref({
                 repositoryId: repositoryId,
-                mode: 'tree',
+                mode: ViewMode.TREE,
                 hash,
                 path: path && getParent(path)
               })
