@@ -7,22 +7,22 @@ import '@testing-library/jest-dom/extend-expect';
 
 import RepositorySelector from 'src/components/RepositorySelector/RepositorySelector';
 import IURLParams from 'src/interfaces/IURLParams';
-import * as requests from 'src/components/RepositorySelector/requests';
+import fetchRepositoriesRequestOrig from 'src/components/RepositorySelector/fetchRepositoriesRequest';
 import { displayNotification } from 'src/util/notificationService';
 import Mock = jest.Mock;
 
 jest.mock('react-router');
-jest.mock('src/components/RepositorySelector/requests');
+jest.mock('src/components/RepositorySelector/fetchRepositoriesRequest');
 jest.mock('src/util/notificationService');
 
 const useParams = reactRouterDom.useParams as Mock;
-const fetchRepositories = requests.fetchRepositoriesRequest as Mock;
+const fetchRepositories = fetchRepositoriesRequestOrig as Mock;
 
 afterEach(() => {
   (displayNotification as Mock).mockReset();
 });
 
-test('Normal display when all needed info provided', async () => {
+test('Element displayed when repositoryId provided', async () => {
   const urlParams = { repositoryId: 'repo' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
@@ -31,12 +31,12 @@ test('Normal display when all needed info provided', async () => {
   expect(screen.queryByRole('button')).toBeVisible();
 });
 
-test('Dropdown displayed on dropdown button click', async () => {
-  const urlParams = { repositoryId: 'repo' } as IURLParams;
+test('Fetched repositories displayed in dropdown', async () => {
+  const urlParams = { repositoryId: 'repositoryId' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  const fetchRepositoriesResponse: string[] = ['resultRepo1', 'resultRepo2'];
-  fetchRepositories.mockResolvedValue(fetchRepositoriesResponse);
+  const fetchedRepositoriesNames: string[] = ['resultRepo1', 'resultRepo2'];
+  fetchRepositories.mockResolvedValue(fetchedRepositoriesNames);
 
   render(<RepositorySelector />);
 
@@ -44,35 +44,45 @@ test('Dropdown displayed on dropdown button click', async () => {
     await fireEvent.click(screen.getByRole('button'));
   });
 
-  expect(screen.queryAllByText('resultRepo', { exact: false })).toHaveLength(2);
+  fetchedRepositoriesNames.forEach(name => expect(screen.getByText(name)).toBeVisible());
 });
 
-test('Items should be filtered on filter value change', async () => {
-  const urlParams = { repositoryId: 'repo' } as IURLParams;
+test('Repositories should be filtered when filter value changes', async () => {
+  const urlParams = { repositoryId: 'repositoryId' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  const fetchRepositoriesResponse: string[] = ['resultRepo1', 'resultRepo2'];
-  fetchRepositories.mockResolvedValue(fetchRepositoriesResponse);
+  const repositoryToShow = 'repositoryToShow';
+  const repositoryToFilterOut = 'repositoryToFilterOut';
+
+  fetchRepositories.mockResolvedValue([repositoryToShow, repositoryToFilterOut]);
 
   render(<RepositorySelector />);
 
   await act(async () => {
     await fireEvent.click(screen.getByRole('button'));
   });
+
+  expect(screen.queryByText(repositoryToShow)).toBeVisible();
+  expect(screen.queryByText(repositoryToFilterOut)).toBeVisible();
+
+  const filterValue = 'ToShow';
 
   act(() => {
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '1' } });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: filterValue } });
   });
 
-  expect(screen.queryAllByText('resultRepo', { exact: false })).toHaveLength(1);
+  expect(screen.queryByText(repositoryToShow)).toBeVisible();
+  expect(screen.queryByText(repositoryToFilterOut)).not.toBeInTheDocument();
 });
 
-test('Items filtered case-insensitive', async () => {
-  const urlParams = { repositoryId: 'repo' } as IURLParams;
+test('Repository filter is case-insensitive', async () => {
+  const urlParams = { repositoryId: 'repositoryId' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  const fetchBranchesResponse: string[] = ['RESULTREPO', 'resultrepo'];
-  fetchRepositories.mockResolvedValue(fetchBranchesResponse);
+  const uppercaseName = 'REPOSITORY_NAME';
+  const lowercaseName = 'repository_name';
+
+  fetchRepositories.mockResolvedValue([uppercaseName, lowercaseName]);
 
   render(<RepositorySelector />);
 
@@ -80,14 +90,20 @@ test('Items filtered case-insensitive', async () => {
     await fireEvent.click(screen.getByRole('button'));
   });
 
+  expect(screen.queryByText(uppercaseName)).toBeVisible();
+  expect(screen.queryByText(lowercaseName)).toBeVisible();
+
+  const filterValue = 'name';
+
   act(() => {
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'ltr' } });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: filterValue } });
   });
 
-  expect(screen.queryAllByText('resultrepo', { exact: false })).toHaveLength(2);
+  expect(screen.queryByText(uppercaseName)).toBeVisible();
+  expect(screen.queryByText(lowercaseName)).toBeVisible();
 });
 
-test('Not displayed when no repositoryId in URLParams', async () => {
+test('Element is not displayed when repositoryId is unknown', async () => {
   useParams.mockReturnValue({});
 
   render(<RepositorySelector />);
@@ -99,12 +115,11 @@ test('Spinner displayed when fetching for items', async () => {
   const urlParams = { repositoryId: 'repo' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  let resolveFetchRepositories: (branches: string[]) => void;
-
+  let resolveFetchRepositoriesRequest: (branches: string[]) => void;
   fetchRepositories.mockImplementation(
     () =>
       new Promise(res => {
-        resolveFetchRepositories = res;
+        resolveFetchRepositoriesRequest = res;
       })
   );
 
@@ -116,12 +131,27 @@ test('Spinner displayed when fetching for items', async () => {
 
   expect(document.querySelector('div[class^="spinner"]')).toBeVisible();
 
-  await act(async () => await resolveFetchRepositories(['repo1', 'repo2']));
+  await act(async () => await resolveFetchRepositoriesRequest(['repo1', 'repo2']));
 
   expect(document.querySelector('div[class^="spinner"]')).toBeNull();
 });
 
-test('List of repositories is empty when API returns error', async () => {
+test('Repositories is not displayed when API returns error', async () => {
+  const urlParams = { repositoryId: 'repo' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  fetchRepositories.mockRejectedValue(new Error('API returned error'));
+
+  render(<RepositorySelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+
+  expect(screen.getByRole('separator').nextSibling).not.toBeInTheDocument();
+});
+
+test('Display notification service called when API returns error', async () => {
   const urlParams = { repositoryId: 'repo' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 

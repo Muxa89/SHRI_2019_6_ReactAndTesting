@@ -29,13 +29,13 @@ const DropdownBranchItem = ({ children }: { children: string }): React.ReactElem
 };
 
 const BranchSelector = (): React.ReactElement | null => {
-  const [branches, setBranches] = useState<string[]>([]);
-  const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
   const { repositoryId, hash }: IURLParams = useParams();
-
   if (!repositoryId || !hash) {
     return null;
   }
+
+  const [branches, setBranches] = useState<string[]>([]);
+  const [isSpinnerVisible, setSpinnerVisible] = useState<boolean>(false);
 
   const onToggleHandler = async (isOpen: boolean) => {
     if (isOpen) {
