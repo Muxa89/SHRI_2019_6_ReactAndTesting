@@ -8,94 +8,101 @@ import '@testing-library/jest-dom/extend-expect';
 import BranchSelector from 'src/components/BranchSelector/BranchSelector';
 import IURLParams from 'src/interfaces/IURLParams';
 import * as requests from 'src/components/BranchSelector/requests';
-import Mock = jest.Mock;
 import { displayNotification } from 'src/util/notificationService';
+import Mock = jest.Mock;
 
 jest.mock('react-router');
 jest.mock('src/components/BranchSelector/requests');
 jest.mock('src/util/notificationService');
 
 const useParams = reactRouterDom.useParams as Mock;
-const fetchBranches = requests.fetchBranchesRequest as Mock;
+const fetchBranchesRequest = requests.fetchBranchesRequest as Mock;
 
 afterEach(() => {
   (displayNotification as Mock).mockReset();
 });
 
-test('Normal display when all needed info provided', async () => {
+test('Element displayed when repositoryId and hash provided', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
   render(<BranchSelector />);
 
-  expect(screen.queryByRole('button')).toBeInTheDocument();
+  const button = screen.queryByRole('button');
+  expect(button).toBeInTheDocument();
+  expect(button!.textContent).toEqual(urlParams.hash);
 });
 
-test('Dropdown displayed on dropdown button click', async () => {
+test('Fetched branch names displayed in dropdown', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  const fetchBranchesResponse: string[] = ['branch1', 'branch2'];
-  fetchBranches.mockResolvedValue(fetchBranchesResponse);
+  const fetchedBranchNames: string[] = ['branch1', 'branch2'];
+  fetchBranchesRequest.mockResolvedValue(fetchedBranchNames);
 
   render(<BranchSelector />);
 
   await act(async () => {
-    await fireEvent(
-      screen.getByText(urlParams.hash!),
-      new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true
-      })
-    );
+    await fireEvent.click(screen.getByRole('button'));
   });
 
-  expect(screen.getByText(fetchBranchesResponse[0])).toBeVisible();
+  fetchedBranchNames.forEach(name => expect(screen.getByText(name)).toBeVisible());
 });
 
-test('Items should be filtered on filter value change', async () => {
+test('Branches should be filtered when filter value changes', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  const fetchBranchesResponse: string[] = ['branch1', 'branch2'];
-  fetchBranches.mockResolvedValue(fetchBranchesResponse);
+  const branchNameToShow = 'branchNameToShow';
+  const branchNameToFilterOut = 'branchNameToFilterOut';
+
+  fetchBranchesRequest.mockResolvedValue([branchNameToShow, branchNameToFilterOut]);
 
   render(<BranchSelector />);
 
   await act(async () => {
-    await fireEvent.click(screen.getByText(urlParams.hash!));
+    await fireEvent.click(screen.getByRole('button'));
   });
 
-  expect(screen.queryAllByText('branch', { exact: false })).toHaveLength(2);
+  expect(screen.queryByText(branchNameToShow)).toBeVisible();
+  expect(screen.queryByText(branchNameToFilterOut)).toBeVisible();
+
+  const filterValue = 'ToShow';
 
   act(() => {
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: '1' } });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: filterValue } });
   });
 
-  expect(screen.queryAllByText('branch', { exact: false })).toHaveLength(1);
+  expect(screen.queryByText(branchNameToShow)).toBeVisible();
+  expect(screen.queryByText(branchNameToFilterOut)).not.toBeInTheDocument();
 });
 
-test('Items filtered case-insensitive', async () => {
+test('Branch filter is case-insensitive', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  const fetchBranchesResponse: string[] = ['BRANCH', 'branch'];
-  fetchBranches.mockResolvedValue(fetchBranchesResponse);
+  const uppercaseName = 'BRANCH';
+  const lowercaseName = 'branch';
+
+  fetchBranchesRequest.mockResolvedValue([uppercaseName, lowercaseName]);
 
   render(<BranchSelector />);
 
   await act(async () => {
-    await fireEvent.click(screen.getByText(urlParams.hash!));
+    await fireEvent.click(screen.getByRole('button'));
   });
+
+  const filterValue = 'br';
 
   act(() => {
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'br' } });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: filterValue } });
   });
 
-  expect(screen.queryAllByText('branch', { exact: false })).toHaveLength(2);
+  expect(screen.getByText(uppercaseName)).toBeVisible();
+  expect(screen.getByText(lowercaseName)).toBeVisible();
 });
 
-test('Not displayed when no hash in URLParams', async () => {
+test('Element is not displayed when hash is unknown', async () => {
   const urlParams = { repositoryId: 'repo' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
@@ -104,7 +111,7 @@ test('Not displayed when no hash in URLParams', async () => {
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });
 
-test('Not displayed when no repositoryId in URLParams', async () => {
+test('Element is not displayed when repositoryId is unknown', async () => {
   const urlParams = { hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
@@ -117,12 +124,11 @@ test('Spinner displayed when fetching for items', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  let resolveFetchBranches: (branches: string[]) => void;
-
-  fetchBranches.mockImplementation(
+  let resolveFetchBranchesRequest: (branches: string[]) => void;
+  fetchBranchesRequest.mockImplementation(
     () =>
       new Promise(res => {
-        resolveFetchBranches = res;
+        resolveFetchBranchesRequest = res;
       })
   );
 
@@ -134,16 +140,31 @@ test('Spinner displayed when fetching for items', async () => {
 
   expect(document.querySelector('div[class^="spinner"]')).toBeVisible();
 
-  await act(async () => await resolveFetchBranches(['branch1', 'branch2']));
+  await act(async () => await resolveFetchBranchesRequest(['branch1', 'branch2']));
 
-  expect(document.querySelector('div[class^="spinner"]')).toBeNull();
+  expect(document.querySelector('div[class^="spinner"]')).not.toBeInTheDocument();
 });
 
-test('List of branches is empty when API returns error', async () => {
+test('Branches is not displayed when API returns error', async () => {
   const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
   useParams.mockReturnValue(urlParams);
 
-  fetchBranches.mockRejectedValue(new Error('API returned error'));
+  fetchBranchesRequest.mockRejectedValue(new Error('API returned error'));
+
+  render(<BranchSelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+
+  expect(screen.getByRole('separator').nextSibling).not.toBeInTheDocument();
+});
+
+test('Display notification service called when API returns error', async () => {
+  const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  fetchBranchesRequest.mockRejectedValue(new Error('API returned error'));
 
   render(<BranchSelector />);
 
