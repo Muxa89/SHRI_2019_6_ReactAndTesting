@@ -9,8 +9,9 @@ import { getHref } from 'src/util/getHref';
 import fetchRepositoriesRequest from 'src/components/RepositorySelector/fetchRepositoriesRequest';
 import { displayNotification } from 'src/util/notificationService';
 import { NotificationType } from 'src/util/notificationService';
-import DropdownFilterWrapper from 'src/components/DropdownFilterWrapper/DropdownFilterWrapper';
+import DropdownFilter from 'src/components/DropdownFilter/DropdownFilter';
 import { ViewMode } from 'src/interfaces/ViewMode';
+import Spinner from 'src/components/Spinner/Spinner';
 
 const fetchRepositories = async (): Promise<string[]> => {
   try {
@@ -76,11 +77,13 @@ const RepositorySelector = (): React.ReactElement | null => {
     <div className='RepositorySelector'>
       <Label>Repository</Label>
       <DropdownButton title={repositoryId} onClick={loadRepositories(setSpinnerVisible, setRepositories)}>
-        <DropdownFilterWrapper placeholder='Enter repository name...' isSpinnerVisible={isSpinnerVisible}>
-          {repositories.map(repository => (
-            <DropdownItem key={repository}>{repository}</DropdownItem>
-          ))}
-        </DropdownFilterWrapper>
+        <Spinner isSpinnerVisible={isSpinnerVisible}>
+          <DropdownFilter placeholder='Enter repository name...'>
+            {repositories.map(repository => (
+              <DropdownItem key={repository}>{repository}</DropdownItem>
+            ))}
+          </DropdownFilter>
+        </Spinner>
       </DropdownButton>
     </div>
   );

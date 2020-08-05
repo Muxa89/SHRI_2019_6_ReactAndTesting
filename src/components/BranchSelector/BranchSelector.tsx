@@ -8,8 +8,8 @@ import IURLParams from 'src/interfaces/IURLParams';
 import fetchBranchesRequest from 'src/components/BranchSelector/fetchBranchesRequest';
 import { displayNotification } from 'src/util/notificationService';
 import { NotificationType } from 'src/util/notificationService';
-import DropdownFilterWrapper from 'src/components/DropdownFilterWrapper/DropdownFilterWrapper';
-import { ReactElement } from 'react';
+import DropdownFilter from 'src/components/DropdownFilter/DropdownFilter';
+import Spinner from 'src/components/Spinner/Spinner';
 
 const fetchBranches = async (repositoryId: string): Promise<string[]> => {
   try {
@@ -49,7 +49,7 @@ function DropdownButton({
 }: {
   title: string;
   onClick: (isOpen: boolean) => Promise<void>;
-  children: ReactElement;
+  children: React.ReactElement;
 }) {
   return (
     <BootstrapDropdownButton title={title} onToggle={onClick} id='BranchSelector' className='BranchSelector'>
@@ -69,11 +69,13 @@ const BranchSelector = (): React.ReactElement | null => {
 
   return (
     <DropdownButton title={hash} onClick={loadBranches(setSpinnerVisible, setBranches, repositoryId)}>
-      <DropdownFilterWrapper placeholder={'Enter branch name...'} isSpinnerVisible={isSpinnerVisible}>
-        {branches.map(branch => (
-          <DropdownItem key={branch}>{branch}</DropdownItem>
-        ))}
-      </DropdownFilterWrapper>
+      <Spinner isSpinnerVisible={isSpinnerVisible}>
+        <DropdownFilter placeholder={'Enter branch name...'}>
+          {branches.map(branch => (
+            <DropdownItem key={branch}>{branch}</DropdownItem>
+          ))}
+        </DropdownFilter>
+      </Spinner>
     </DropdownButton>
   );
 };
