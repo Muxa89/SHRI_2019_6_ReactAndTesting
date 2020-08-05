@@ -174,3 +174,19 @@ test('Display notification service called when API returns error', async () => {
 
   expect(displayNotification).toBeCalledTimes(1);
 });
+
+test('Dropdown elements links to selected branch', async () => {
+  const urlParams = { repositoryId: 'repo', hash: 'hash' } as IURLParams;
+  useParams.mockReturnValue(urlParams);
+
+  const fetchedBranchNames = ['branch1', 'branch2'];
+  fetchBranchesRequest.mockResolvedValue(fetchedBranchNames);
+
+  render(<BranchSelector />);
+
+  await act(async () => {
+    await fireEvent.click(screen.getByRole('button'));
+  });
+
+  fetchedBranchNames.forEach(branch => expect(screen.getByText(branch).getAttribute('href')).toContain(branch));
+});
